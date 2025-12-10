@@ -40,5 +40,8 @@
 # debug information files
 *.dwo
 
+# qt
+*.pro.user
+
 # output folder
 bin
