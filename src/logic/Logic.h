@@ -1,5 +1,7 @@
 #pragma once
 
+#include "common/Library.h"
+
 #include <QObject>
 
 class Logic : public QObject
@@ -9,6 +11,9 @@ public:
 	explicit Logic(QObject* parent = nullptr);
 	~Logic();
 
-signals:
+public slots:
+	void processTracks(const std::vector<Track>& tracks);
 
+signals:
+	void libraryReady(const Library& library);
 };

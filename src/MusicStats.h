@@ -12,7 +12,10 @@ public:
 	MusicStats();
 	~MusicStats();
 
-	void	show();
+	void show();
+
+private:
+	void initConnections();
 
 private:
 	std::unique_ptr<Gui> _gui;
