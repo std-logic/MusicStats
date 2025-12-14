@@ -65,6 +65,15 @@ public:
 		return sum;
 	}
 
+	uint64_t size() const
+	{
+		auto sum = uint64_t(0);
+		for (const auto& track : _tracks) {
+			sum += track.size();
+		}
+		return sum;
+	}
+
 	auto tracksCount() const
 	{ return _tracks.size(); }
 

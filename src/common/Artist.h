@@ -64,6 +64,15 @@ public:
 		return sum;
 	}
 
+	uint64_t size() const
+	{
+		auto sum = uint64_t(0);
+		for (const auto& album : _albums) {
+			sum += album.second.size();
+		}
+		return sum;
+	}
+
 	auto albumsCount() const
 	{ return _albums.size(); }
 

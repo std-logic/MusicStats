@@ -21,20 +21,16 @@ void Logic::processTracks(const std::vector<Track>& tracks)
 	el_timer.start();
 
 	for (const auto& track : tracks) {
-		auto artist_title = track.artist();
-		// if (artist_title == "Разное") {
-		// 	artist_title = track.album();
-		// }
-
-		auto& artist = library/*.artists*/[artist_title];
+		auto& artist = library[track.artist()];
 		if (artist.isTitleEmpty()) {
-			artist.setTitle(artist_title);
+			artist.setTitle(track.artist());
 		}
 
-		auto& album = artist/*.albums*/[track.album()];
+		auto& album = artist[track.album()];
 		if (album.isTitleEmpty()) {
 			album.setTitle(track.album());
 		}
+
 		album.addTrack(track);
 	}
 

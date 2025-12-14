@@ -60,6 +60,15 @@ public:
 		return sum;
 	}
 
+	uint64_t size() const
+	{
+		auto sum = uint64_t(0);
+		for (const auto& artist : _artists) {
+			sum += artist.second.size();
+		}
+		return sum;
+	}
+
 	auto artistsCount() const
 	{ return _artists.size(); }
 

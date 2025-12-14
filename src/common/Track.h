@@ -58,7 +58,7 @@ public:
 
 	inline void setSize(unsigned int size)
 	{ _size = size; }
-	inline unsigned int size() const
+	inline uint64_t size() const
 	{ return _size; }
 
 	inline void setTime(unsigned int time)

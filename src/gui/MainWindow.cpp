@@ -50,6 +50,14 @@ void MainWindow::initMenuBar()
 				this,
 				&MainWindow::clearAll);
 
+	// auto menu_view = menuBar()->addMenu(tr("Вид"));
+	// auto action_add_various = menu_view->addAction(
+	// 			tr("Вкл. 'Разное' в список групп"),
+	// 			QKeySequence(),
+	// 			this,
+	// 			&MainWindow::changedAddVarious);
+	// action_add_various->setCheckable(true);
+
 }
 
 void MainWindow::initStatusBar()
@@ -81,4 +89,3 @@ void MainWindow::clearAll()
 {
 	_artists_table->clearLibrary();
 }
-

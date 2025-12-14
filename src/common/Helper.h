@@ -29,4 +29,9 @@ namespace Helper
 				std::to_string(min_year) :
 				std::to_string(min_year) + "-" + std::to_string(max_year);
 	}
+
+	inline uint64_t sizeInMB(uint64_t size_in_bytes)
+	{
+		return (size_in_bytes / uint64_t(1048576));
+	}
 }
