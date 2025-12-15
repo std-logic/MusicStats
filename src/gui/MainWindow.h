@@ -3,6 +3,7 @@
 #include "common/Library.h"
 
 #include <QMainWindow>
+#include <QElapsedTimer>
 
 class ArtistsTable;
 
@@ -24,10 +25,18 @@ private:
 	void initStatusBar();
 	void initCentralWidgets();
 
+	void showLibraryTitle(const QString& title);
+	void clearLibraryTitle();
+
+	void showReadingStart();
+	void showReadingFinish();
+
 private slots:
 	void openFile();
 	void clearAll();
 
 private:
 	std::unique_ptr<ArtistsTable> _artists_table;
+
+	QElapsedTimer _read_files_timer;
 };

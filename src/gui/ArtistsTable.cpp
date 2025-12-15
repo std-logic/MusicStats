@@ -16,6 +16,8 @@ void ArtistsTable::clearLibrary()
 
 void ArtistsTable::showLibrary(const Library& library)
 {
+	clear();
+
 	QList<QTreeWidgetItem*> items;
 
 	auto library_tracks_count = library.tracksCount();

@@ -55,9 +55,9 @@ public:
 	BasicTypes::StringType yearString() const
 	{ return Helper::yearString(minYear(), maxYear()); }
 
-	unsigned int playCount() const
+	uint32_t playCount() const
 	{
-		unsigned int sum = 0;
+		uint32_t sum = 0;
 		for (const auto& album : _albums) {
 			sum += album.second.playCount();
 		}

@@ -3,16 +3,15 @@
 #include <QFile>
 #include <QXmlStreamReader>
 #include <QDebug>
-#include <QElapsedTimer>
+// #include <QElapsedTimer>
 
 XmlParser::XmlParser()
 {
 }
 
-std::vector<Track> XmlParser::readFile(const QString& file_name)
+std::list<Track> XmlParser::readFile(const QString& file_name)
 {
-	auto tracks = std::vector<Track>();
-	// tracks.reserve(10000);
+	auto tracks = std::list<Track>();
 	auto curr_track = Track();
 
 	QFile file(file_name);
@@ -26,10 +25,6 @@ std::vector<Track> XmlParser::readFile(const QString& file_name)
 	bool found_track_dict = false;
 	bool conv_ok;
 
-	QElapsedTimer el_timer;
-	el_timer.start();
-
-	// int i = 0;
 	QXmlStreamReader xml(&file);
 	while (!xml.atEnd()) {
 		if (!found_tracks_list_key) {
@@ -108,22 +103,7 @@ std::vector<Track> XmlParser::readFile(const QString& file_name)
 				}
 			}
 		}
-
-		// if (++i > 500) {
-		// 	break;
-		// }
 	}
-
-	qDebug() << "found" << tracks.size() << "tracks for" << el_timer.elapsed() << "ms";
-	// qDebug() << "first track" << tracks[0].artist() << tracks[0].album() << tracks[0].title();
-	// size_t sum_size = 0;
-	// size_t sum_time = 0;
-	// for (const auto& track : tracks) {
-	// 	sum_size += track.size();
-	// 	sum_time += track.time();
-	// }
-	// qDebug() << "sum size" << static_cast<double>(sum_size) / 1024. / 1024. / 1024. << "GB";
-	// qDebug() << "sum time" << static_cast<double>(sum_time) / 1000. / 60. / 60. / 24 << "d";
 
 	file.close();
 	return tracks;

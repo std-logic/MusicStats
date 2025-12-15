@@ -24,8 +24,7 @@ SOURCES += \
 	src/gui/Gui.cpp \
 	src/gui/MainWindow.cpp \
 	src/input/Input.cpp \
-	src/input/XmlParser.cpp \
-	src/logic/Logic.cpp
+	src/input/XmlParser.cpp
 
 HEADERS += \
 	src/MusicStats.h \
@@ -39,8 +38,7 @@ HEADERS += \
 	src/gui/Gui.h \
 	src/gui/MainWindow.h \
 	src/input/Input.h \
-	src/input/XmlParser.h \
-	src/logic/Logic.h
+	src/input/XmlParser.h
 
 TRANSLATIONS += \
 	lng/MusicStats_en_US.ts

@@ -8,6 +8,23 @@ public:
 	Track() = default;
 	Track(const BasicTypes::StringType& title) : _title(title) {}
 
+	inline bool operator==(const Track& track) const noexcept
+	{
+		return	(_title == track.title()) &&
+				(_album == track.album()) &&
+				(_artist == track.artist());
+	}
+
+	Track& operator-=(const Track& track) noexcept
+	{
+		if (_play_count >= track._play_count) {
+			_play_count -= track._play_count;
+		} else {
+			_play_count = 0;
+		}
+		return *this;
+	}
+
 	inline void setTitle(const BasicTypes::StringType& title)
 	{ _title = title; }
 	inline void setTitle(BasicTypes::StringType&& title)
@@ -35,14 +52,14 @@ public:
 	inline BasicTypes::StringType artist() const
 	{ return _artist; }
 
-	inline void setTrackNumer(unsigned int track_number)
+	inline void setTrackNumer(uint32_t track_number)
 	{ _track_number = track_number; }
-	inline unsigned int trackNumber() const
+	inline uint32_t trackNumber() const
 	{ return _track_number; }
 
-	inline void setYear(unsigned int year)
+	inline void setYear(uint32_t year)
 	{ _year = year; }
-	inline unsigned int year() const
+	inline uint32_t year() const
 	{ return _year; }
 	BasicTypes::StringType yearString() const
 	{
@@ -51,28 +68,28 @@ public:
 				std::to_string(_year);
 	}
 
-	inline void setPlayCount(unsigned int play_count)
+	inline void setPlayCount(uint32_t play_count)
 	{ _play_count = play_count; }
-	inline unsigned int playCount() const
+	inline uint32_t playCount() const
 	{ return _play_count; }
 
-	inline void setSize(unsigned int size)
+	inline void setSize(uint32_t size)
 	{ _size = size; }
 	inline uint64_t size() const
 	{ return _size; }
 
-	inline void setTime(unsigned int time)
+	inline void setTime(uint32_t time)
 	{ _time = time; }
-	inline unsigned int time() const
+	inline uint32_t time() const
 	{ return _time; }
 
 private:
 	BasicTypes::StringType _title;
 	BasicTypes::StringType _album;
 	BasicTypes::StringType _artist;
-	unsigned int _track_number = BasicTypes::undefined_track_number;
-	unsigned int _year = BasicTypes::undefined_year;
-	unsigned int _play_count = 0;
-	unsigned int _size = 0;
-	unsigned int _time = 0;
+	uint32_t _track_number = BasicTypes::undefined_track_number;
+	uint32_t _year = BasicTypes::undefined_year;
+	uint32_t _play_count = 0;
+	uint32_t _size = 0;
+	uint32_t _time = 0;
 };

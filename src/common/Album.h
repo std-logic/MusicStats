@@ -25,9 +25,9 @@ public:
 	TracksContainer::const_iterator end() const noexcept
 	{ return _tracks.end(); }
 
-	Track& operator[](size_t index)
+	inline Track& operator[](size_t index)
 	{ return _tracks[index]; }
-	const Track& operator[](size_t index) const
+	inline const Track& operator[](size_t index) const
 	{ return _tracks[index]; }
 
 	inline void setTitle(const BasicTypes::StringType& title)
@@ -56,9 +56,9 @@ public:
 	BasicTypes::StringType yearString() const
 	{ return Helper::yearString(minYear(), maxYear()); }
 
-	unsigned int playCount() const
+	uint32_t playCount() const
 	{
-		unsigned int sum = 0;
+		uint32_t sum = 0;
 		for (const auto& track : _tracks) {
 			sum += track.playCount();
 		}

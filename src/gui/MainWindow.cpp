@@ -15,6 +15,8 @@ MainWindow::MainWindow(QWidget* parent)
 	initMenuBar();
 	initStatusBar();
 	initCentralWidgets();
+
+	clearLibraryTitle();
 }
 
 MainWindow::~MainWindow()
@@ -24,11 +26,12 @@ MainWindow::~MainWindow()
 void MainWindow::showLibrary(const Library& library)
 {
 	_artists_table->showLibrary(library);
+	showLibraryTitle(QString::fromStdString(library.title()));
+	showReadingFinish();
 }
 
 void MainWindow::initCommonParams()
 {
-	setWindowTitle(tr("Статистика музыки"));
 	setMinimumSize(QSize(960, 540));
 }
 
@@ -57,7 +60,6 @@ void MainWindow::initMenuBar()
 	// 			this,
 	// 			&MainWindow::changedAddVarious);
 	// action_add_various->setCheckable(true);
-
 }
 
 void MainWindow::initStatusBar()
@@ -68,6 +70,27 @@ void MainWindow::initStatusBar()
 void MainWindow::initCentralWidgets()
 {
 	setCentralWidget(_artists_table.get());
+}
+
+void MainWindow::showLibraryTitle(const QString& title)
+{
+	setWindowTitle(QString("%1 [%2]").arg(tr("Статистика музыки"), title));
+}
+
+void MainWindow::clearLibraryTitle()
+{
+	setWindowTitle(tr("Статистика музыки"));
+}
+
+void MainWindow::showReadingStart()
+{
+	_read_files_timer.start();
+}
+
+void MainWindow::showReadingFinish()
+{
+	statusBar()->showMessage(tr("Библиотека загружена за %1 мс")
+							 .arg(_read_files_timer.elapsed()), 5000);
 }
 
 void MainWindow::openFile()
@@ -82,10 +105,15 @@ void MainWindow::openFile()
 		return;
 	}
 
+	file_names.sort();
+
+	showReadingStart();
+
 	emit readFiles(file_names);
 }
 
 void MainWindow::clearAll()
 {
+	clearLibraryTitle();
 	_artists_table->clearLibrary();
 }

@@ -4,10 +4,12 @@
 
 #include <QString>
 
+#include <list>
+
 class XmlParser
 {
 public:
 	XmlParser();
 
-	std::vector<Track> readFile(const QString& file_name);
+	std::list<Track> readFile(const QString& file_name);
 };
