@@ -5,7 +5,7 @@
 #include <QMainWindow>
 #include <QElapsedTimer>
 
-class ArtistsTable;
+class LibraryTable;
 
 class MainWindow : public QMainWindow
 {
@@ -34,9 +34,15 @@ private:
 private slots:
 	void openFile();
 	void clearAll();
+	void viewByArtists(bool checked);
+	void viewByAlbums(bool checked);
+	void viewByTracks(bool checked);
 
 private:
-	std::unique_ptr<ArtistsTable> _artists_table;
+	std::unique_ptr<LibraryTable> _library_table;
+
+	Library _library;
+	bool _library_ready = false;
 
 	QElapsedTimer _read_files_timer;
 };

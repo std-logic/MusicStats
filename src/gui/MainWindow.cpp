@@ -1,15 +1,14 @@
 #include "MainWindow.h"
-#include "ArtistsTable.h"
+#include "LibraryTable.h"
 
 #include <QMenuBar>
+#include <QActionGroup>
 #include <QStatusBar>
 #include <QFileDialog>
-#include <QHBoxLayout>
-#include <QPushButton>
 
 MainWindow::MainWindow(QWidget* parent)
 	: QMainWindow{parent}
-	, _artists_table{std::make_unique<ArtistsTable>(this)}
+	, _library_table{std::make_unique<LibraryTable>(this)}
 {
 	initCommonParams();
 	initMenuBar();
@@ -25,8 +24,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::showLibrary(const Library& library)
 {
-	_artists_table->showLibrary(library);
-	showLibraryTitle(QString::fromStdString(library.title()));
+	_library = library;
+	_library_ready = true;
+	_library_table->showLibrary(library);
+	showLibraryTitle(library.title());
 	showReadingFinish();
 }
 
@@ -39,27 +40,62 @@ void MainWindow::initMenuBar()
 {
 	setMenuBar(new QMenuBar);
 
-	auto menu_file = menuBar()->addMenu(tr("Файл"));
-	menu_file->addAction(
-				QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew),
-				tr("Открыть..."),
-				QKeySequence(Qt::CTRL | Qt::Key_O),
-				this,
-				&MainWindow::openFile);
-	menu_file->addAction(
-				QIcon::fromTheme(QIcon::ThemeIcon::ViewRefresh),
-				tr("Очистить"),
-				QKeySequence(Qt::CTRL | Qt::Key_C),
-				this,
-				&MainWindow::clearAll);
+	// Файл
+	{
+		auto menu_file = menuBar()->addMenu(tr("Файл"));
 
-	// auto menu_view = menuBar()->addMenu(tr("Вид"));
-	// auto action_add_various = menu_view->addAction(
-	// 			tr("Вкл. 'Разное' в список групп"),
-	// 			QKeySequence(),
-	// 			this,
-	// 			&MainWindow::changedAddVarious);
-	// action_add_various->setCheckable(true);
+		// Файл -> Открыть...
+		menu_file->addAction(
+					QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew),
+					tr("Открыть..."),
+					QKeySequence(Qt::CTRL | Qt::Key_O),
+					this,
+					&MainWindow::openFile);
+
+		// Файл -> Очистить
+		menu_file->addAction(
+					QIcon::fromTheme(QIcon::ThemeIcon::ViewRefresh),
+					tr("Очистить"),
+					QKeySequence(Qt::CTRL | Qt::Key_C),
+					this,
+					&MainWindow::clearAll);
+	}
+
+	// Вид
+	{
+		auto menu_view = menuBar()->addMenu(tr("Вид"));
+
+		auto group_view_by = new QActionGroup(this);
+		group_view_by->setExclusive(true);
+
+		// Вид -> По исполнителям
+		auto action_view_by_artists = menu_view->addAction(
+					tr("По исполнителям"),
+					QKeySequence(Qt::CTRL | Qt::Key_1),
+					this,
+					&MainWindow::viewByArtists);
+		action_view_by_artists->setCheckable(true);
+		action_view_by_artists->setChecked(true);
+		action_view_by_artists->setActionGroup(group_view_by);
+
+		// Вид -> По альбомам
+		auto action_view_by_albums = menu_view->addAction(
+					tr("По альбомам"),
+					QKeySequence(Qt::CTRL | Qt::Key_2),
+					this,
+					&MainWindow::viewByAlbums);
+		action_view_by_albums->setCheckable(true);
+		action_view_by_albums->setActionGroup(group_view_by);
+
+		// Вид -> По трекам
+		auto action_view_by_tracks = menu_view->addAction(
+					tr("По трекам"),
+					QKeySequence(Qt::CTRL | Qt::Key_3),
+					this,
+					&MainWindow::viewByTracks);
+		action_view_by_tracks->setCheckable(true);
+		action_view_by_tracks->setActionGroup(group_view_by);
+	}
 }
 
 void MainWindow::initStatusBar()
@@ -69,7 +105,7 @@ void MainWindow::initStatusBar()
 
 void MainWindow::initCentralWidgets()
 {
-	setCentralWidget(_artists_table.get());
+	setCentralWidget(_library_table.get());
 }
 
 void MainWindow::showLibraryTitle(const QString& title)
@@ -106,14 +142,40 @@ void MainWindow::openFile()
 	}
 
 	file_names.sort();
-
 	showReadingStart();
-
 	emit readFiles(file_names);
 }
 
 void MainWindow::clearAll()
 {
 	clearLibraryTitle();
-	_artists_table->clearLibrary();
+	_library_table->clearLibrary();
+	_library_ready = false;
+}
+
+void MainWindow::viewByArtists(bool /*checked*/)
+{
+	if (_library_table->setViewByType(LibraryTable::VIEW_BY_ARTISTS)) {
+		if (_library_ready) {
+			_library_table->showLibrary(_library);
+		}
+	}
+}
+
+void MainWindow::viewByAlbums(bool /*checked*/)
+{
+	if (_library_table->setViewByType(LibraryTable::VIEW_BY_ALBUMS)) {
+		if (_library_ready) {
+			_library_table->showLibrary(_library);
+		}
+	}
+}
+
+void MainWindow::viewByTracks(bool /*checked*/)
+{
+	if (_library_table->setViewByType(LibraryTable::VIEW_BY_TRACKS)) {
+		if (_library_ready) {
+			_library_table->showLibrary(_library);
+		}
+	}
 }

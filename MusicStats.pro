@@ -20,8 +20,9 @@ INCLUDEPATH += \
 SOURCES += \
 	src/main.cpp \
 	src/MusicStats.cpp \
-	src/gui/ArtistsTable.cpp \
 	src/gui/Gui.cpp \
+	src/gui/LibraryTable.cpp \
+	src/gui/LibraryTableItem.cpp \
 	src/gui/MainWindow.cpp \
 	src/input/Input.cpp \
 	src/input/XmlParser.cpp
@@ -30,12 +31,13 @@ HEADERS += \
 	src/MusicStats.h \
 	src/common/Album.h \
 	src/common/Artist.h \
-	src/common/BasicTypes.h \
+	src/common/Global.h \
 	src/common/Helper.h \
 	src/common/Library.h \
 	src/common/Track.h \
-	src/gui/ArtistsTable.h \
 	src/gui/Gui.h \
+	src/gui/LibraryTable.h \
+	src/gui/LibraryTableItem.h \
 	src/gui/MainWindow.h \
 	src/input/Input.h \
 	src/input/XmlParser.h

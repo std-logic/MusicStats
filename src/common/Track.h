@@ -1,12 +1,14 @@
 #pragma once
 
-#include "BasicTypes.h"
+#include "Global.h"
+
+#include <QString>
 
 class Track
 {
 public:
 	Track() = default;
-	Track(const BasicTypes::StringType& title) : _title(title) {}
+	Track(const QString& title) : _title(title) {}
 
 	inline bool operator==(const Track& track) const noexcept
 	{
@@ -25,31 +27,31 @@ public:
 		return *this;
 	}
 
-	inline void setTitle(const BasicTypes::StringType& title)
+	inline void setTitle(const QString& title)
 	{ _title = title; }
-	inline void setTitle(BasicTypes::StringType&& title)
+	inline void setTitle(QString&& title)
 	{ _title = std::move(title); }
-	inline BasicTypes::StringType title() const
+	inline QString title() const
 	{ return _title; }
-	BasicTypes::StringType titleWithTrackNumber() const
+	QString titleWithTrackNumber() const
 	{
-		return	(_track_number == BasicTypes::undefined_track_number) ?
+		return	(_track_number == Global::undefined_track_number) ?
 				_title :
-				(_track_number < 10 ? "0" : "") + std::to_string(_track_number) + ". " + _title;
+				QString("%1. %2").arg(_track_number, 2, 10, QChar('0')).arg(_title);
 	}
 
-	inline void setAlbum(const BasicTypes::StringType& album)
+	inline void setAlbum(const QString& album)
 	{ _album = album; }
-	inline void setAlbum(BasicTypes::StringType&& album)
+	inline void setAlbum(QString&& album)
 	{ _album = std::move(album); }
-	inline BasicTypes::StringType album() const
+	inline QString album() const
 	{ return _album; }
 
-	inline void setArtist(const BasicTypes::StringType& artist)
+	inline void setArtist(const QString& artist)
 	{ _artist = artist; }
-	inline void setArtist(BasicTypes::StringType&& artist)
+	inline void setArtist(QString&& artist)
 	{ _artist = std::move(artist); }
-	inline BasicTypes::StringType artist() const
+	inline QString artist() const
 	{ return _artist; }
 
 	inline void setTrackNumer(uint32_t track_number)
@@ -61,11 +63,11 @@ public:
 	{ _year = year; }
 	inline uint32_t year() const
 	{ return _year; }
-	BasicTypes::StringType yearString() const
+	QString yearString() const
 	{
-		return	(_year == BasicTypes::undefined_year) ?
-				BasicTypes::StringType("") :
-				std::to_string(_year);
+		return	(_year == Global::undefined_year) ?
+				QString() :
+				QString::number(_year);
 	}
 
 	inline void setPlayCount(uint32_t play_count)
@@ -84,11 +86,11 @@ public:
 	{ return _time; }
 
 private:
-	BasicTypes::StringType _title;
-	BasicTypes::StringType _album;
-	BasicTypes::StringType _artist;
-	uint32_t _track_number = BasicTypes::undefined_track_number;
-	uint32_t _year = BasicTypes::undefined_year;
+	QString _title;
+	QString _album;
+	QString _artist;
+	uint32_t _track_number = Global::undefined_track_number;
+	uint32_t _year = Global::undefined_year;
 	uint32_t _play_count = 0;
 	uint32_t _size = 0;
 	uint32_t _time = 0;

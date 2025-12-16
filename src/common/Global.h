@@ -1,11 +1,9 @@
 #pragma once
 
-#include <string>
+#include <cstdint>
 
-namespace BasicTypes
+namespace Global
 {
-	using StringType = std::string;
-
 	const uint32_t undefined_track_number = 0;
 	const uint32_t undefined_year = 0;
 }

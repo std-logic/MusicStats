@@ -1,8 +1,10 @@
 #pragma once
 
-#include "BasicTypes.h"
+#include "Global.h"
 #include "Helper.h"
 #include "Artist.h"
+
+#include <QString>
 
 #include <map>
 
@@ -10,9 +12,9 @@ class Library
 {
 public:
 	Library() = default;
-	Library(const BasicTypes::StringType& title) : _title(title) {}
+	Library(const QString& title) : _title(title) {}
 
-	using ArtistsContainer = std::map<BasicTypes::StringType, Artist>;
+	using ArtistsContainer = std::map<QString, Artist>;
 
 	ArtistsContainer::iterator begin() noexcept
 	{ return _artists.begin(); }
@@ -24,17 +26,17 @@ public:
 	ArtistsContainer::const_iterator end() const noexcept
 	{ return _artists.end(); }
 
-	Artist& operator[](const BasicTypes::StringType& title)
+	Artist& operator[](const QString& title)
 	{ return _artists[title]; }
 
-	inline void setTitle(const BasicTypes::StringType& title)
+	inline void setTitle(const QString& title)
 	{ _title = title; }
-	inline BasicTypes::StringType title() const
+	inline QString title() const
 	{ return _title; }
 
 	auto minYear() const
 	{
-		auto min_year = BasicTypes::undefined_year;
+		auto min_year = Global::undefined_year;
 		for (const auto& artist : _artists) {
 			min_year = Helper::checkMinYear(min_year, artist.second.minYear());
 		}
@@ -42,13 +44,13 @@ public:
 	}
 	auto maxYear() const
 	{
-		auto max_year = BasicTypes::undefined_year;
+		auto max_year = Global::undefined_year;
 		for (const auto& artist : _artists) {
 			max_year = Helper::checkMaxYear(max_year, artist.second.maxYear());
 		}
 		return max_year;
 	}
-	BasicTypes::StringType yearString() const
+	QString yearString() const
 	{ return Helper::yearString(minYear(), maxYear()); }
 
 	uint32_t playCount() const
@@ -87,6 +89,6 @@ public:
 	}
 
 private:
-	BasicTypes::StringType _title;
+	QString _title;
 	ArtistsContainer _artists;
 };

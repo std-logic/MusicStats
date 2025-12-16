@@ -1,17 +1,18 @@
 #pragma once
 
-#include "BasicTypes.h"
+#include "Global.h"
 #include "Helper.h"
 #include "Track.h"
 
+#include <QString>
+
 #include <vector>
-// #include <algorithm>
 
 class Album
 {
 public:
 	Album() = default;
-	Album(const BasicTypes::StringType& title) : _title(title) {}
+	Album(const QString& title) : _title(title) {}
 
 	using TracksContainer = std::vector<Track>;
 
@@ -30,16 +31,16 @@ public:
 	inline const Track& operator[](size_t index) const
 	{ return _tracks[index]; }
 
-	inline void setTitle(const BasicTypes::StringType& title)
+	inline void setTitle(const QString& title)
 	{ _title = title; }
-	inline BasicTypes::StringType title() const
+	inline QString title() const
 	{ return _title; }
-	inline bool isTitleEmpty() const
-	{ return _title.empty(); }
+	inline bool isTitleEmpty() const noexcept
+	{ return _title.isEmpty(); }
 
 	auto minYear() const
 	{
-		auto min_year = BasicTypes::undefined_year;
+		auto min_year = Global::undefined_year;
 		for (const auto& track : _tracks) {
 			min_year = Helper::checkMinYear(min_year, track.year());
 		}
@@ -47,13 +48,13 @@ public:
 	}
 	auto maxYear() const
 	{
-		auto max_year = BasicTypes::undefined_year;
+		auto max_year = Global::undefined_year;
 		for (const auto& track : _tracks) {
 			max_year = Helper::checkMaxYear(max_year, track.year());
 		}
 		return max_year;
 	}
-	BasicTypes::StringType yearString() const
+	QString yearString() const
 	{ return Helper::yearString(minYear(), maxYear()); }
 
 	uint32_t playCount() const
@@ -81,6 +82,6 @@ public:
 	{ _tracks.push_back(track); }
 
 private:
-	BasicTypes::StringType _title;
+	QString _title;
 	TracksContainer _tracks;
 };

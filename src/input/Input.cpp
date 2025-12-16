@@ -58,7 +58,7 @@ QString Input::createLibraryTitleFromFileNames(const QStringList& file_names)
 
 Library Input::createLibraryFromTracks(const QString& title, const std::list<Track>& tracks)
 {
-	Library library(title.toStdString());
+	Library library(title);
 
 	for (const auto& track : tracks) {
 		auto& artist = library[track.artist()];

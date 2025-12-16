@@ -55,15 +55,15 @@ std::list<Track> XmlParser::readFile(const QString& file_name)
 				QString element_name = xml.readElementText();
 				if (element_name == "Name") {
 					if (xml.readNextStartElement()) {
-						curr_track.setTitle(xml.readElementText().toStdString());
+						curr_track.setTitle(xml.readElementText());
 					}
 				} else if (element_name == "Artist") {
 					if (xml.readNextStartElement()) {
-						curr_track.setArtist(xml.readElementText().toStdString());
+						curr_track.setArtist(xml.readElementText());
 					}
 				} else if (element_name == "Album") {
 					if (xml.readNextStartElement()) {
-						curr_track.setAlbum(xml.readElementText().toStdString());
+						curr_track.setAlbum(xml.readElementText());
 					}
 				} else if (element_name == "Size") {
 					if (xml.readNextStartElement()) {
