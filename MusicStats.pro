@@ -4,6 +4,8 @@ CONFIG += c++17
 CONFIG += lrelease
 CONFIG += embed_translations
 
+QMAKE_CXXFLAGS += -Wall -Wextra -pedantic-errors
+
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 TARGET = MusicStats
