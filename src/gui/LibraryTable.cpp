@@ -1,7 +1,7 @@
 #include "LibraryTable.h"
-#include "common/Helper.h"
-
 #include "LibraryTableItem.h"
+#include "common/Helper.h"
+#include "common/Library.h"
 
 LibraryTable::LibraryTable(QWidget* parent)
 	: QTreeWidget{parent}
@@ -73,8 +73,7 @@ void LibraryTable::showByArtists(const Library& library)
 
 	auto item_all = new LibraryTableItem(this);
 	item_all->setIcon(COLUMN_TITLE, QIcon::fromTheme(QIcon::ThemeIcon::HelpAbout));
-	item_all->setText(COLUMN_TITLE, QStringLiteral("#%1: %2")
-					  .arg(tr("Всего")).arg(library.artistsCount()));
+	item_all->setText(COLUMN_TITLE, createOverallString(library.artistsCount()));
 	item_all->setNumb(COLUMN_SIZE, Helper::sizeInMB(library.size()));
 	item_all->setText(COLUMN_YEAR, library.yearString());
 	item_all->setNumb(COLUMN_ALBUMS, library.albumsCount());
@@ -140,8 +139,7 @@ void LibraryTable::showByAlbums(const Library& library)
 
 	auto item_all = new LibraryTableItem(this);
 	item_all->setIcon(COLUMN_TITLE, QIcon::fromTheme(QIcon::ThemeIcon::HelpAbout));
-	item_all->setText(COLUMN_TITLE, QStringLiteral("#%1: %2")
-					  .arg(tr("Всего")).arg(library.albumsCount()));
+	item_all->setText(COLUMN_TITLE, createOverallString(library.albumsCount()));
 	item_all->setNumb(COLUMN_SIZE, Helper::sizeInMB(library.size()));
 	item_all->setText(COLUMN_YEAR, library.yearString());
 	item_all->setNumb(COLUMN_TRACKS, library.tracksCount());
@@ -153,7 +151,7 @@ void LibraryTable::showByAlbums(const Library& library)
 		for (const auto& [album_title, album] : artist) {
 			auto item_album = new LibraryTableItem(this);
 			item_album->setText(COLUMN_TITLE, QStringLiteral("%1 - %2")
-								.arg(artist_title, album_title));
+					.arg(artist_title, album_title));
 			item_album->setNumb(COLUMN_SIZE, Helper::sizeInMB(album.size()));
 			item_album->setText(COLUMN_YEAR, album.yearString());
 			item_album->setNumb(COLUMN_TRACKS, album.tracksCount());
@@ -197,8 +195,7 @@ void LibraryTable::showByTracks(const Library& library)
 
 	auto item_all = new LibraryTableItem(this);
 	item_all->setIcon(COLUMN_TITLE, QIcon::fromTheme(QIcon::ThemeIcon::HelpAbout));
-	item_all->setText(COLUMN_TITLE, QStringLiteral("#%1: %2")
-					  .arg(tr("Всего")).arg(library.tracksCount()));
+	item_all->setText(COLUMN_TITLE, createOverallString(library.tracksCount()));
 	item_all->setNumb(COLUMN_SIZE, Helper::sizeInMB(library.size()));
 	item_all->setText(COLUMN_YEAR, library.yearString());
 	item_all->setNumb(COLUMN_PLAY_COUNT, library.playCount());
@@ -210,7 +207,7 @@ void LibraryTable::showByTracks(const Library& library)
 			for (const auto& track : album) {
 				auto item_track = new LibraryTableItem(this);
 				item_track->setText(COLUMN_TITLE, QStringLiteral("%1 - %2 - %3")
-									.arg(artist_title, album_title, track.titleWithTrackNumber()));
+						.arg(artist_title, album_title, track.titleWithTrackNumber()));
 				item_track->setNumb(COLUMN_SIZE, Helper::sizeInMB(track.size()));
 				item_track->setText(COLUMN_YEAR, track.yearString());
 				item_track->setNumb(COLUMN_PLAY_COUNT, track.playCount());

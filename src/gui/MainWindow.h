@@ -5,7 +5,10 @@
 #include <QMainWindow>
 #include <QElapsedTimer>
 
+#include <optional>
+
 class LibraryTable;
+class StatisticsChart;
 
 class MainWindow : public QMainWindow
 {
@@ -40,9 +43,9 @@ private slots:
 
 private:
 	std::unique_ptr<LibraryTable> _library_table;
+	std::unique_ptr<StatisticsChart> _statistics_chart;
 
-	Library _library;
-	bool _library_ready = false;
+	std::optional<Library> _library;
 
 	QElapsedTimer _read_files_timer;
 };

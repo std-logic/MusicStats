@@ -1,8 +1,8 @@
 #pragma once
 
-#include "common/Library.h"
-
 #include <QTreeWidget>
+
+class Library;
 
 class LibraryTable : public QTreeWidget
 {
@@ -27,6 +27,9 @@ signals:
 
 private:
 	void init();
+
+	inline QString createOverallString(size_t size) const
+	{ return QStringLiteral("#%1: %2").arg(tr("Всего")).arg(size); }
 
 	void showByArtists(const Library& library);
 	void showByAlbums(const Library& library);

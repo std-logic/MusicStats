@@ -1,4 +1,4 @@
-QT += core gui widgets
+QT += core gui widgets charts
 
 CONFIG += c++17
 CONFIG += lrelease
@@ -26,6 +26,7 @@ SOURCES += \
 	src/gui/LibraryTable.cpp \
 	src/gui/LibraryTableItem.cpp \
 	src/gui/MainWindow.cpp \
+	src/gui/StatisticsChart.cpp \
 	src/input/Input.cpp \
 	src/input/XmlParser.cpp
 
@@ -41,6 +42,7 @@ HEADERS += \
 	src/gui/LibraryTable.h \
 	src/gui/LibraryTableItem.h \
 	src/gui/MainWindow.h \
+	src/gui/StatisticsChart.h \
 	src/input/Input.h \
 	src/input/XmlParser.h
 

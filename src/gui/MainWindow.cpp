@@ -1,14 +1,17 @@
 #include "MainWindow.h"
 #include "LibraryTable.h"
+#include "StatisticsChart.h"
 
 #include <QMenuBar>
 #include <QActionGroup>
 #include <QStatusBar>
 #include <QFileDialog>
+#include <QVBoxLayout>
 
 MainWindow::MainWindow(QWidget* parent)
 	: QMainWindow{parent}
 	, _library_table{std::make_unique<LibraryTable>(this)}
+	, _statistics_chart{std::make_unique<StatisticsChart>(this)}
 {
 	initCommonParams();
 	initMenuBar();
@@ -25,8 +28,8 @@ MainWindow::~MainWindow()
 void MainWindow::showLibrary(const Library& library)
 {
 	_library = library;
-	_library_ready = true;
 	_library_table->showLibrary(library);
+	_statistics_chart->showStatistics(library);
 	showLibraryTitle(library.title());
 	showReadingFinish();
 }
@@ -105,7 +108,15 @@ void MainWindow::initStatusBar()
 
 void MainWindow::initCentralWidgets()
 {
-	setCentralWidget(_library_table.get());
+	auto central_widget = new QWidget(this);
+	auto central_layout = new QVBoxLayout(central_widget);
+
+	central_layout->setContentsMargins(0, 0, 0, 0);
+	central_layout->setSpacing(0);
+	central_layout->addWidget(_library_table.get(), 60);
+	central_layout->addWidget(_statistics_chart.get(), 40);
+
+	setCentralWidget(central_widget);
 }
 
 void MainWindow::showLibraryTitle(const QString& title)
@@ -150,14 +161,15 @@ void MainWindow::clearAll()
 {
 	clearLibraryTitle();
 	_library_table->clearLibrary();
-	_library_ready = false;
+	_statistics_chart->clearStatistics();
+	_library.reset();
 }
 
 void MainWindow::viewByArtists(bool /*checked*/)
 {
 	if (_library_table->setViewByType(LibraryTable::VIEW_BY_ARTISTS)) {
-		if (_library_ready) {
-			_library_table->showLibrary(_library);
+		if (_library.has_value()) {
+			_library_table->showLibrary(_library.value());
 		}
 	}
 }
@@ -165,8 +177,8 @@ void MainWindow::viewByArtists(bool /*checked*/)
 void MainWindow::viewByAlbums(bool /*checked*/)
 {
 	if (_library_table->setViewByType(LibraryTable::VIEW_BY_ALBUMS)) {
-		if (_library_ready) {
-			_library_table->showLibrary(_library);
+		if (_library.has_value()) {
+			_library_table->showLibrary(_library.value());
 		}
 	}
 }
@@ -174,8 +186,8 @@ void MainWindow::viewByAlbums(bool /*checked*/)
 void MainWindow::viewByTracks(bool /*checked*/)
 {
 	if (_library_table->setViewByType(LibraryTable::VIEW_BY_TRACKS)) {
-		if (_library_ready) {
-			_library_table->showLibrary(_library);
+		if (_library.has_value()) {
+			_library_table->showLibrary(_library.value());
 		}
 	}
 }
