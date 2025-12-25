@@ -98,6 +98,39 @@ void MainWindow::initMenuBar()
 					&MainWindow::viewByTracks);
 		action_view_by_tracks->setCheckable(true);
 		action_view_by_tracks->setActionGroup(group_view_by);
+
+		menu_view->addSeparator();
+
+		auto group_statistics_chart = new QActionGroup(this);
+		group_statistics_chart->setExclusive(true);
+
+		// Вид -> Без графиков
+		auto action_statistics_chart_off = menu_view->addAction(
+					tr("Без графиков"),
+					QKeySequence(Qt::CTRL | Qt::Key_4),
+					this,
+					&MainWindow::statisticsChartOff);
+		action_statistics_chart_off->setCheckable(true);
+		action_statistics_chart_off->setChecked(true);
+		action_statistics_chart_off->setActionGroup(group_statistics_chart);
+
+		// Вид -> По прослушиваниям
+		auto action_statistics_chart_play_counts = menu_view->addAction(
+					tr("По прослушиваниям"),
+					QKeySequence(Qt::CTRL | Qt::Key_5),
+					this,
+					&MainWindow::statisticsChartPlayCounts);
+		action_statistics_chart_play_counts->setCheckable(true);
+		action_statistics_chart_play_counts->setActionGroup(group_statistics_chart);
+
+		// Вид -> По годам
+		auto action_statistics_chart_years = menu_view->addAction(
+					tr("По годам"),
+					QKeySequence(Qt::CTRL | Qt::Key_6),
+					this,
+					&MainWindow::statisticsChartYears);
+		action_statistics_chart_years->setCheckable(true);
+		action_statistics_chart_years->setActionGroup(group_statistics_chart);
 	}
 }
 
@@ -188,6 +221,31 @@ void MainWindow::viewByTracks(bool /*checked*/)
 	if (_library_table->setViewByType(LibraryTable::VIEW_BY_TRACKS)) {
 		if (_library.has_value()) {
 			_library_table->showLibrary(_library.value());
+		}
+	}
+}
+
+void MainWindow::statisticsChartOff(bool /*checked*/)
+{
+	if (_statistics_chart->setStatisticsType(StatisticsChart::STATISTICS_OFF)) {
+		_statistics_chart->clearStatistics();
+	}
+}
+
+void MainWindow::statisticsChartPlayCounts(bool /*checked*/)
+{
+	if (_statistics_chart->setStatisticsType(StatisticsChart::STATISTICS_PLAY_COUNTS)) {
+		if (_library.has_value()) {
+			_statistics_chart->showStatistics(_library.value());
+		}
+	}
+}
+
+void MainWindow::statisticsChartYears(bool /*checked*/)
+{
+	if (_statistics_chart->setStatisticsType(StatisticsChart::STATISTICS_YEARS)) {
+		if (_library.has_value()) {
+			_statistics_chart->showStatistics(_library.value());
 		}
 	}
 }

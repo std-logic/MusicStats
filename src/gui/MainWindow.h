@@ -37,9 +37,14 @@ private:
 private slots:
 	void openFile();
 	void clearAll();
+
 	void viewByArtists(bool checked);
 	void viewByAlbums(bool checked);
 	void viewByTracks(bool checked);
+
+	void statisticsChartOff(bool checked);
+	void statisticsChartPlayCounts(bool checked);
+	void statisticsChartYears(bool checked);
 
 private:
 	std::unique_ptr<LibraryTable> _library_table;

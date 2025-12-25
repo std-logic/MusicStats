@@ -15,6 +15,15 @@ StatisticsChart::StatisticsChart(QWidget* parent)
 	hide();
 }
 
+bool StatisticsChart::setStatisticsType(StatisticsTypes statistics_type)
+{
+	if (_statistics_type == statistics_type) {
+		return false;
+	}
+	_statistics_type = statistics_type;
+	return true;
+}
+
 void StatisticsChart::clearStatistics()
 {
 	auto bar_sets_1 = getBarSet();
@@ -26,35 +35,11 @@ void StatisticsChart::clearStatistics()
 void StatisticsChart::showStatistics(const Library& library)
 {
 	clearStatistics();
-
-	auto map_val_y = std::map<uint32_t, uint32_t>();
-	uint32_t max_x = 0;
-	for (const auto& [artist_title, artist] : library) {
-		for (const auto& [album_title, album] : artist) {
-			for (const auto& track : album) {
-				auto play_cnt = track.playCount();
-				auto val_x = play_cnt / 10;
-				map_val_y[val_x]++;
-				if (max_x < val_x) { max_x = val_x; }
-			}
-		}
+	switch (_statistics_type) {
+		case STATISTICS_PLAY_COUNTS:	showPlayCounts(library);	break;
+		case STATISTICS_YEARS:			showYears(library);			break;
+		default: return;
 	}
-
-	auto bar_sets_1 = getBarSet();
-	auto bar_h_axis_1 = getHAxis();
-	auto bar_v_axis_1 = getVAxis();
-	QStringList bar_categories;
-	uint32_t max_y = 0;
-	for (uint32_t val_x = 0; val_x <= max_x; ++val_x) {
-		uint32_t val_y = map_val_y[val_x];
-		bar_sets_1->append(val_y);
-		bar_categories << QString("%1-%2").arg(val_x*10).arg((val_x+1)*10);
-		if (max_y < val_y) { max_y = val_y; }
-	}
-	bar_h_axis_1->setCategories(bar_categories);
-	bar_v_axis_1->setRange(0, ((max_y / 1000) + 1) * 1000);
-	bar_v_axis_1->setTickCount((max_y / 1000) + 2);
-
 	show();
 }
 
@@ -68,7 +53,6 @@ void StatisticsChart::init()
 
 	bar_chart->setTheme(QChart::ChartThemeLight);
 	bar_chart->setMargins({0, 0, 5, 0});
-	bar_chart->setTitle(tr("Распределение по прослушиваниям"));
 	bar_chart->legend()->setVisible(false);
 	auto title_font = bar_chart->titleFont();
 	title_font.setPointSize(title_font.pointSize() + 2);
@@ -102,22 +86,96 @@ QBarSet* StatisticsChart::getBarSet()
 	auto bar_series = bar_chart->series();
 	auto bar_series_1 = bar_series.first();
 	auto bar_sets = reinterpret_cast<QAbstractBarSeries*>(bar_series_1)->barSets();
-	auto bar_sets_1 = bar_sets.first();
-	return bar_sets_1;
+	auto bar_set_1 = bar_sets.first();
+	return bar_set_1;
 }
 
-QBarCategoryAxis* StatisticsChart::getHAxis()
+QBarCategoryAxis* StatisticsChart::getAxisX()
 {
 	auto bar_chart = chart();
-	auto bar_h_axis = bar_chart->axes(Qt::Horizontal);
-	auto bar_h_axis_1 = reinterpret_cast<QBarCategoryAxis*>(bar_h_axis.first());
-	return bar_h_axis_1;
+	auto bar_axis_x = bar_chart->axes(Qt::Horizontal);
+	auto bar_axis_x_1 = reinterpret_cast<QBarCategoryAxis*>(bar_axis_x.first());
+	return bar_axis_x_1;
 }
 
-QValueAxis* StatisticsChart::getVAxis()
+QValueAxis* StatisticsChart::getAxisY()
 {
 	auto bar_chart = chart();
-	auto bar_v_axis = bar_chart->axes(Qt::Vertical);
-	auto bar_v_axis_1 = reinterpret_cast<QValueAxis*>(bar_v_axis.first());
-	return bar_v_axis_1;
+	auto bar_axis_y = bar_chart->axes(Qt::Vertical);
+	auto bar_axis_y_1 = reinterpret_cast<QValueAxis*>(bar_axis_y.first());
+	return bar_axis_y_1;
+}
+
+void StatisticsChart::showPlayCounts(const Library& library)
+{
+	chart()->setTitle(tr("Распределение по прослушиваниям"));
+
+	auto map_val_y = std::map<uint32_t, uint32_t>();
+	uint32_t min_x = 9999, max_x = 0;
+	for (const auto& [artist_title, artist] : library) {
+		for (const auto& [album_title, album] : artist) {
+			for (const auto& track : album) {
+				auto play_cnt = track.playCount();
+				auto val_x = play_cnt / 10;
+				map_val_y[val_x]++;
+				if (min_x > val_x) { min_x = val_x; }
+				if (max_x < val_x) { max_x = val_x; }
+			}
+		}
+	}
+
+	auto bar_set = getBarSet();
+	auto bar_axis_x = getAxisX();
+	auto bar_axis_y = getAxisY();
+	QStringList categories;
+	uint32_t max_y = 0;
+	for (uint32_t val_x = min_x; val_x <= max_x; ++val_x) {
+		uint32_t val_y = map_val_y[val_x];
+		bar_set->append(val_y);
+		categories << QString("%1-%2").arg(val_x*10).arg(val_x*10+9);
+		if (max_y < val_y) { max_y = val_y; }
+	}
+	bar_axis_x->setCategories(categories);
+	bar_axis_y->setRange(0, ((max_y / 1000) + 1) * 1000);
+	bar_axis_y->setTickCount((max_y / 1000) + 2);
+}
+
+void StatisticsChart::showYears(const Library& library)
+{
+	chart()->setTitle(tr("Распределение по годам"));
+
+	auto map_val_y = std::map<uint32_t, uint32_t>();
+	uint32_t min_x = 9999, max_x = 0;
+	for (const auto& [artist_title, artist] : library) {
+		for (const auto& [album_title, album] : artist) {
+			for (const auto& track : album) {
+				auto year = track.year();
+				if (year != Global::undefined_year) {
+					auto val_x = year / 10;
+					map_val_y[val_x]++;
+					if (min_x > val_x) { min_x = val_x; }
+					if (max_x < val_x) { max_x = val_x; }
+				} else {
+					map_val_y[Global::undefined_year]++;
+				}
+			}
+		}
+	}
+
+	auto bar_set = getBarSet();
+	auto bar_axis_x = getAxisX();
+	auto bar_axis_y = getAxisY();
+	QStringList categories;
+	uint32_t max_y = 0;
+	bar_set->append(map_val_y[Global::undefined_year]);
+	categories << tr("Неизвестные");
+	for (uint32_t val_x = min_x; val_x <= max_x; ++val_x) {
+		uint32_t val_y = map_val_y[val_x];
+		bar_set->append(val_y);
+		categories << QString("%1-%2").arg(val_x*10).arg(val_x*10+9);
+		if (max_y < val_y) { max_y = val_y; }
+	}
+	bar_axis_x->setCategories(categories);
+	bar_axis_y->setRange(0, ((max_y / 1000) + 1) * 1000);
+	bar_axis_y->setTickCount((max_y / 1000) + 2);
 }
