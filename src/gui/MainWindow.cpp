@@ -30,7 +30,7 @@ void MainWindow::showLibrary(const Library& library)
 	_library = library;
 	_library_table->showLibrary(library);
 	_statistics_chart->showStatistics(library);
-	showLibraryTitle(library.title());
+	showLibraryTitle(library);
 	showReadingFinish();
 }
 
@@ -152,9 +152,15 @@ void MainWindow::initCentralWidgets()
 	setCentralWidget(central_widget);
 }
 
-void MainWindow::showLibraryTitle(const QString& title)
+void MainWindow::showLibraryTitle(const Library& library)
 {
-	setWindowTitle(QString("%1 [%2]").arg(tr("Статистика музыки"), title));
+	setWindowTitle(QString("%1 | %2 | %3: %4 | %5: %6 | %7: %8")
+				   .arg(tr("Статистика музыки"), library.title(), tr("Исполнителей"))
+				   .arg(library.artistsCount())
+				   .arg(tr("Альбомов"))
+				   .arg(library.albumsCount())
+				   .arg(tr("Треков"))
+				   .arg(library.tracksCount()));
 }
 
 void MainWindow::clearLibraryTitle()

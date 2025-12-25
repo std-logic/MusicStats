@@ -28,7 +28,7 @@ private:
 	void initStatusBar();
 	void initCentralWidgets();
 
-	void showLibraryTitle(const QString& title);
+	void showLibraryTitle(const Library& library);
 	void clearLibraryTitle();
 
 	void showReadingStart();
