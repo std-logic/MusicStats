@@ -59,6 +59,7 @@ void LibraryTable::showByArtists(const Library& library)
 		NUM_OF_COLUMNS
 	};
 	setColumnCount(NUM_OF_COLUMNS);
+	setColumnWidth(COLUMN_TITLE, 400);
 	sortByColumn(COLUMN_TITLE, Qt::AscendingOrder);
 	setHeaderLabels(QStringList()
 					<< tr("Исполнитель")
@@ -80,6 +81,7 @@ void LibraryTable::showByArtists(const Library& library)
 	item_all->setNumb(COLUMN_TRACKS, library.tracksCount());
 	item_all->setNumb(COLUMN_PLAY_COUNT, library.playCount());
 	item_all->setBold(true);
+	item_all->setBackgroundEverywhere(QColor(210, 210, 210));
 	items.append(item_all);
 
 	for (const auto& [artist_title, artist] : library) {
@@ -90,6 +92,7 @@ void LibraryTable::showByArtists(const Library& library)
 		item_artist->setNumb(COLUMN_ALBUMS, artist.albumsCount());
 		item_artist->setNumb(COLUMN_TRACKS, artist.tracksCount());
 		item_artist->setNumb(COLUMN_PLAY_COUNT, artist.playCount());
+		item_artist->setBackgroundEverywhere(QColor(220, 220, 220));
 
 		for (const auto& [album_title, album] : artist) {
 			auto item_album = new LibraryTableItem(item_artist);
@@ -98,6 +101,7 @@ void LibraryTable::showByArtists(const Library& library)
 			item_album->setText(COLUMN_YEAR, album.yearString());
 			item_album->setNumb(COLUMN_TRACKS, album.tracksCount());
 			item_album->setNumb(COLUMN_PLAY_COUNT, album.playCount());
+			item_album->setBackgroundEverywhere(QColor(230, 230, 230));
 
 			for (const auto& track : album) {
 				auto item_track = new LibraryTableItem(item_album);
@@ -126,6 +130,7 @@ void LibraryTable::showByAlbums(const Library& library)
 		NUM_OF_COLUMNS
 	};
 	setColumnCount(NUM_OF_COLUMNS);
+	setColumnWidth(COLUMN_TITLE, 500);
 	sortByColumn(COLUMN_TITLE, Qt::AscendingOrder);
 	setHeaderLabels(QStringList()
 					<< tr("Альбом")
@@ -145,6 +150,7 @@ void LibraryTable::showByAlbums(const Library& library)
 	item_all->setNumb(COLUMN_TRACKS, library.tracksCount());
 	item_all->setNumb(COLUMN_PLAY_COUNT, library.playCount());
 	item_all->setBold(true);
+	item_all->setBackgroundEverywhere(QColor(210, 210, 210));
 	items.append(item_all);
 
 	for (const auto& [artist_title, artist] : library) {
@@ -156,6 +162,7 @@ void LibraryTable::showByAlbums(const Library& library)
 			item_album->setText(COLUMN_YEAR, album.yearString());
 			item_album->setNumb(COLUMN_TRACKS, album.tracksCount());
 			item_album->setNumb(COLUMN_PLAY_COUNT, album.playCount());
+			item_album->setBackgroundEverywhere(QColor(230, 230, 230));
 
 			for (const auto& track : album) {
 				auto item_track = new LibraryTableItem(item_album);
@@ -183,6 +190,7 @@ void LibraryTable::showByTracks(const Library& library)
 		NUM_OF_COLUMNS
 	};
 	setColumnCount(NUM_OF_COLUMNS);
+	setColumnWidth(COLUMN_TITLE, 600);
 	sortByColumn(COLUMN_TITLE, Qt::AscendingOrder);
 	setHeaderLabels(QStringList()
 					<< tr("Трек")
@@ -200,6 +208,7 @@ void LibraryTable::showByTracks(const Library& library)
 	item_all->setText(COLUMN_YEAR, library.yearString());
 	item_all->setNumb(COLUMN_PLAY_COUNT, library.playCount());
 	item_all->setBold(true);
+	item_all->setBackgroundEverywhere(QColor(210, 210, 210));
 	items.append(item_all);
 
 	for (const auto& [artist_title, artist] : library) {

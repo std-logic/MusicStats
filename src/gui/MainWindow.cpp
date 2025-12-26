@@ -154,7 +154,7 @@ void MainWindow::initCentralWidgets()
 
 void MainWindow::showLibraryTitle(const Library& library)
 {
-	setWindowTitle(QString("%1 | %2 | %3: %4 | %5: %6 | %7: %8")
+	setWindowTitle(QString("%1 – %2 – %3: %4 – %5: %6 – %7: %8")
 				   .arg(tr("Статистика музыки"), library.title(), tr("Исполнителей"))
 				   .arg(library.artistsCount())
 				   .arg(tr("Альбомов"))

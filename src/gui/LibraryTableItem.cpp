@@ -23,3 +23,10 @@ void LibraryTableItem::setBold(bool enable)
 		setFont(i, default_font);
 	}
 }
+
+void LibraryTableItem::setBackgroundEverywhere(const QBrush& brush)
+{
+	for (auto i = 0; i < columnCount(); ++i) {
+		setBackground(i, brush);
+	}
+}

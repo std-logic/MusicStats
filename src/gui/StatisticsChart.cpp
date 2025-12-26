@@ -52,7 +52,7 @@ void StatisticsChart::init()
 	auto bar_chart = chart();
 
 	bar_chart->setTheme(QChart::ChartThemeLight);
-	bar_chart->setMargins({0, 0, 5, 0});
+	bar_chart->setMargins({3, 0, 10, 0});
 	bar_chart->legend()->setVisible(false);
 	auto title_font = bar_chart->titleFont();
 	title_font.setPointSize(title_font.pointSize() + 2);

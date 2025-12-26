@@ -13,5 +13,6 @@ public:
 	{ setData(column, Qt::DisplayRole, value); }
 
 	void setBold(bool enable);
+	void setBackgroundEverywhere(const QBrush& brush);
 };
 
