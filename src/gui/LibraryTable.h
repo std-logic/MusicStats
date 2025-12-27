@@ -25,6 +25,9 @@ public:
 
 signals:
 
+private slots:
+	void sortIndicatorChanged(int index, Qt::SortOrder order);
+
 private:
 	void init();
 
@@ -37,4 +40,9 @@ private:
 
 private:
 	ViewByTypes _view_by = VIEW_BY_ARTISTS;
+
+	bool _sorting_by_size = false;
+	bool _sorting_by_year = false;
+	bool _sorting_by_play_count = false;
+	Qt::SortOrder _sorting_order = Qt::AscendingOrder;
 };

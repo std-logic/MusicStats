@@ -3,6 +3,8 @@
 #include "common/Helper.h"
 #include "common/Library.h"
 
+#include <QHeaderView>
+
 LibraryTable::LibraryTable(QWidget* parent)
 	: QTreeWidget{parent}
 {
@@ -21,6 +23,10 @@ bool LibraryTable::setViewByType(ViewByTypes view_by)
 
 void LibraryTable::clearLibrary()
 {
+	_sorting_by_size = false;
+	_sorting_by_year = false;
+	_sorting_by_play_count = false;
+
 	clear();
 	hide();
 }
@@ -37,6 +43,17 @@ void LibraryTable::showLibrary(const Library& library)
 	show();
 }
 
+void LibraryTable::sortIndicatorChanged(int index, Qt::SortOrder order)
+{
+	// Hardcode! COLUMN_SIZE always must have index 1
+	_sorting_by_size = (index == 1);
+	// Hardcode! COLUMN_YEAR always must have index 2
+	_sorting_by_year = (index == 2);
+	// Hardcode! COLUMN_PLAY_COUNT always must be the last
+	_sorting_by_play_count = (index == (columnCount()-1));
+	_sorting_order = order;
+}
+
 void LibraryTable::init()
 {
 	QFont default_font = font();
@@ -44,6 +61,9 @@ void LibraryTable::init()
 	setFont(default_font);
 
 	setSortingEnabled(true);
+
+	connect(header(), &QHeaderView::sortIndicatorChanged,
+			this, &LibraryTable::sortIndicatorChanged);
 }
 
 void LibraryTable::showByArtists(const Library& library)
@@ -60,7 +80,10 @@ void LibraryTable::showByArtists(const Library& library)
 	};
 	setColumnCount(NUM_OF_COLUMNS);
 	setColumnWidth(COLUMN_TITLE, 400);
-	sortByColumn(COLUMN_TITLE, Qt::AscendingOrder);
+	if (_sorting_by_size)				{ sortByColumn(COLUMN_SIZE, _sorting_order); }
+	else if (_sorting_by_year)			{ sortByColumn(COLUMN_YEAR, _sorting_order); }
+	else if (_sorting_by_play_count)	{ sortByColumn(COLUMN_PLAY_COUNT, _sorting_order); }
+	else								{ sortByColumn(COLUMN_TITLE, Qt::AscendingOrder); }
 	setHeaderLabels(QStringList()
 					<< tr("Исполнитель")
 					<< tr("Размер, MB")
@@ -131,7 +154,10 @@ void LibraryTable::showByAlbums(const Library& library)
 	};
 	setColumnCount(NUM_OF_COLUMNS);
 	setColumnWidth(COLUMN_TITLE, 500);
-	sortByColumn(COLUMN_TITLE, Qt::AscendingOrder);
+	if (_sorting_by_size)				{ sortByColumn(COLUMN_SIZE, _sorting_order); }
+	else if (_sorting_by_year)			{ sortByColumn(COLUMN_YEAR, _sorting_order); }
+	else if (_sorting_by_play_count)	{ sortByColumn(COLUMN_PLAY_COUNT, _sorting_order); }
+	else								{ sortByColumn(COLUMN_TITLE, Qt::AscendingOrder); }
 	setHeaderLabels(QStringList()
 					<< tr("Альбом")
 					<< tr("Размер, MB")
@@ -191,7 +217,10 @@ void LibraryTable::showByTracks(const Library& library)
 	};
 	setColumnCount(NUM_OF_COLUMNS);
 	setColumnWidth(COLUMN_TITLE, 600);
-	sortByColumn(COLUMN_TITLE, Qt::AscendingOrder);
+	if (_sorting_by_size)				{ sortByColumn(COLUMN_SIZE, _sorting_order); }
+	else if (_sorting_by_year)			{ sortByColumn(COLUMN_YEAR, _sorting_order); }
+	else if (_sorting_by_play_count)	{ sortByColumn(COLUMN_PLAY_COUNT, _sorting_order); }
+	else								{ sortByColumn(COLUMN_TITLE, Qt::AscendingOrder); }
 	setHeaderLabels(QStringList()
 					<< tr("Трек")
 					<< tr("Размер, MB")
