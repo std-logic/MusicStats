@@ -23,7 +23,6 @@ bool LibraryTable::setViewByType(ViewByTypes view_by)
 
 void LibraryTable::clearLibrary()
 {
-	_sorting_by_size = false;
 	_sorting_by_year = false;
 	_sorting_by_play_count = false;
 
@@ -45,11 +44,9 @@ void LibraryTable::showLibrary(const Library& library)
 
 void LibraryTable::sortIndicatorChanged(int index, Qt::SortOrder order)
 {
-	// Hardcode! COLUMN_SIZE always must have index 1
-	_sorting_by_size = (index == 1);
-	// Hardcode! COLUMN_YEAR always must have index 2
-	_sorting_by_year = (index == 2);
-	// Hardcode! COLUMN_PLAY_COUNT always must be the last
+	// Hardcode! In any view mode COLUMN_YEAR always must have index 1
+	_sorting_by_year = (index == 1);
+	// Hardcode! In any view mode COLUMN_PLAY_COUNT always must be the last
 	_sorting_by_play_count = (index == (columnCount()-1));
 	_sorting_order = order;
 }
@@ -71,7 +68,6 @@ void LibraryTable::showByArtists(const Library& library)
 	enum ColumnsNames
 	{
 		COLUMN_TITLE,
-		COLUMN_SIZE,
 		COLUMN_YEAR,
 		COLUMN_ALBUMS,
 		COLUMN_TRACKS,
@@ -79,14 +75,12 @@ void LibraryTable::showByArtists(const Library& library)
 		NUM_OF_COLUMNS
 	};
 	setColumnCount(NUM_OF_COLUMNS);
-	setColumnWidth(COLUMN_TITLE, 400);
-	if (_sorting_by_size)				{ sortByColumn(COLUMN_SIZE, _sorting_order); }
-	else if (_sorting_by_year)			{ sortByColumn(COLUMN_YEAR, _sorting_order); }
+	setColumnWidth(COLUMN_TITLE, 500);
+	if (_sorting_by_year)				{ sortByColumn(COLUMN_YEAR, _sorting_order); }
 	else if (_sorting_by_play_count)	{ sortByColumn(COLUMN_PLAY_COUNT, _sorting_order); }
 	else								{ sortByColumn(COLUMN_TITLE, Qt::AscendingOrder); }
 	setHeaderLabels(QStringList()
 					<< tr("Исполнитель")
-					<< tr("Размер, MB")
 					<< tr("Год")
 					<< tr("Альбомов")
 					<< tr("Треков")
@@ -98,7 +92,6 @@ void LibraryTable::showByArtists(const Library& library)
 	auto item_all = new LibraryTableItem(this);
 	item_all->setIcon(COLUMN_TITLE, QIcon::fromTheme(QIcon::ThemeIcon::HelpAbout));
 	item_all->setText(COLUMN_TITLE, createOverallString(library.artistsCount()));
-	item_all->setNumb(COLUMN_SIZE, Helper::sizeInMB(library.size()));
 	item_all->setText(COLUMN_YEAR, library.yearString());
 	item_all->setNumb(COLUMN_ALBUMS, library.albumsCount());
 	item_all->setNumb(COLUMN_TRACKS, library.tracksCount());
@@ -110,7 +103,6 @@ void LibraryTable::showByArtists(const Library& library)
 	for (const auto& [artist_title, artist] : library) {
 		auto item_artist = new LibraryTableItem(this);
 		item_artist->setText(COLUMN_TITLE, artist_title);
-		item_artist->setNumb(COLUMN_SIZE, Helper::sizeInMB(artist.size()));
 		item_artist->setText(COLUMN_YEAR, artist.yearString());
 		item_artist->setNumb(COLUMN_ALBUMS, artist.albumsCount());
 		item_artist->setNumb(COLUMN_TRACKS, artist.tracksCount());
@@ -120,7 +112,6 @@ void LibraryTable::showByArtists(const Library& library)
 		for (const auto& [album_title, album] : artist) {
 			auto item_album = new LibraryTableItem(item_artist);
 			item_album->setText(COLUMN_TITLE, album_title);
-			item_album->setNumb(COLUMN_SIZE, Helper::sizeInMB(album.size()));
 			item_album->setText(COLUMN_YEAR, album.yearString());
 			item_album->setNumb(COLUMN_TRACKS, album.tracksCount());
 			item_album->setNumb(COLUMN_PLAY_COUNT, album.playCount());
@@ -129,7 +120,6 @@ void LibraryTable::showByArtists(const Library& library)
 			for (const auto& track : album) {
 				auto item_track = new LibraryTableItem(item_album);
 				item_track->setText(COLUMN_TITLE, track.titleWithTrackNumber());
-				item_track->setNumb(COLUMN_SIZE, Helper::sizeInMB(track.size()));
 				item_track->setText(COLUMN_YEAR, track.yearString());
 				item_track->setNumb(COLUMN_PLAY_COUNT, track.playCount());
 			}
@@ -146,21 +136,18 @@ void LibraryTable::showByAlbums(const Library& library)
 	enum ColumnsNames
 	{
 		COLUMN_TITLE,
-		COLUMN_SIZE,
 		COLUMN_YEAR,
 		COLUMN_TRACKS,
 		COLUMN_PLAY_COUNT,
 		NUM_OF_COLUMNS
 	};
 	setColumnCount(NUM_OF_COLUMNS);
-	setColumnWidth(COLUMN_TITLE, 500);
-	if (_sorting_by_size)				{ sortByColumn(COLUMN_SIZE, _sorting_order); }
-	else if (_sorting_by_year)			{ sortByColumn(COLUMN_YEAR, _sorting_order); }
+	setColumnWidth(COLUMN_TITLE, 600);
+	if (_sorting_by_year)				{ sortByColumn(COLUMN_YEAR, _sorting_order); }
 	else if (_sorting_by_play_count)	{ sortByColumn(COLUMN_PLAY_COUNT, _sorting_order); }
 	else								{ sortByColumn(COLUMN_TITLE, Qt::AscendingOrder); }
 	setHeaderLabels(QStringList()
 					<< tr("Альбом")
-					<< tr("Размер, MB")
 					<< tr("Год")
 					<< tr("Треков")
 					<< tr("Прослушиваний")
@@ -171,7 +158,6 @@ void LibraryTable::showByAlbums(const Library& library)
 	auto item_all = new LibraryTableItem(this);
 	item_all->setIcon(COLUMN_TITLE, QIcon::fromTheme(QIcon::ThemeIcon::HelpAbout));
 	item_all->setText(COLUMN_TITLE, createOverallString(library.albumsCount()));
-	item_all->setNumb(COLUMN_SIZE, Helper::sizeInMB(library.size()));
 	item_all->setText(COLUMN_YEAR, library.yearString());
 	item_all->setNumb(COLUMN_TRACKS, library.tracksCount());
 	item_all->setNumb(COLUMN_PLAY_COUNT, library.playCount());
@@ -184,7 +170,6 @@ void LibraryTable::showByAlbums(const Library& library)
 			auto item_album = new LibraryTableItem(this);
 			item_album->setText(COLUMN_TITLE, QStringLiteral("%1 - %2")
 					.arg(artist_title, album_title));
-			item_album->setNumb(COLUMN_SIZE, Helper::sizeInMB(album.size()));
 			item_album->setText(COLUMN_YEAR, album.yearString());
 			item_album->setNumb(COLUMN_TRACKS, album.tracksCount());
 			item_album->setNumb(COLUMN_PLAY_COUNT, album.playCount());
@@ -193,7 +178,6 @@ void LibraryTable::showByAlbums(const Library& library)
 			for (const auto& track : album) {
 				auto item_track = new LibraryTableItem(item_album);
 				item_track->setText(COLUMN_TITLE, track.titleWithTrackNumber());
-				item_track->setNumb(COLUMN_SIZE, Helper::sizeInMB(track.size()));
 				item_track->setText(COLUMN_YEAR, track.yearString());
 				item_track->setNumb(COLUMN_PLAY_COUNT, track.playCount());
 			}
@@ -210,20 +194,17 @@ void LibraryTable::showByTracks(const Library& library)
 	enum ColumnsNames
 	{
 		COLUMN_TITLE,
-		COLUMN_SIZE,
 		COLUMN_YEAR,
 		COLUMN_PLAY_COUNT,
 		NUM_OF_COLUMNS
 	};
 	setColumnCount(NUM_OF_COLUMNS);
-	setColumnWidth(COLUMN_TITLE, 600);
-	if (_sorting_by_size)				{ sortByColumn(COLUMN_SIZE, _sorting_order); }
-	else if (_sorting_by_year)			{ sortByColumn(COLUMN_YEAR, _sorting_order); }
+	setColumnWidth(COLUMN_TITLE, 700);
+	if (_sorting_by_year)				{ sortByColumn(COLUMN_YEAR, _sorting_order); }
 	else if (_sorting_by_play_count)	{ sortByColumn(COLUMN_PLAY_COUNT, _sorting_order); }
 	else								{ sortByColumn(COLUMN_TITLE, Qt::AscendingOrder); }
 	setHeaderLabels(QStringList()
 					<< tr("Трек")
-					<< tr("Размер, MB")
 					<< tr("Год")
 					<< tr("Прослушиваний")
 					);
@@ -233,7 +214,6 @@ void LibraryTable::showByTracks(const Library& library)
 	auto item_all = new LibraryTableItem(this);
 	item_all->setIcon(COLUMN_TITLE, QIcon::fromTheme(QIcon::ThemeIcon::HelpAbout));
 	item_all->setText(COLUMN_TITLE, createOverallString(library.tracksCount()));
-	item_all->setNumb(COLUMN_SIZE, Helper::sizeInMB(library.size()));
 	item_all->setText(COLUMN_YEAR, library.yearString());
 	item_all->setNumb(COLUMN_PLAY_COUNT, library.playCount());
 	item_all->setBold(true);
@@ -246,7 +226,6 @@ void LibraryTable::showByTracks(const Library& library)
 				auto item_track = new LibraryTableItem(this);
 				item_track->setText(COLUMN_TITLE, QStringLiteral("%1 - %2 - %3")
 						.arg(artist_title, album_title, track.titleWithTrackNumber()));
-				item_track->setNumb(COLUMN_SIZE, Helper::sizeInMB(track.size()));
 				item_track->setText(COLUMN_YEAR, track.yearString());
 				item_track->setNumb(COLUMN_PLAY_COUNT, track.playCount());
 
