@@ -99,6 +99,15 @@ void MainWindow::initMenuBar()
 		action_view_by_tracks->setCheckable(true);
 		action_view_by_tracks->setActionGroup(group_view_by);
 
+		// Вид -> По лучшим трекам
+		auto action_view_by_best_tracks = menu_view->addAction(
+					tr("По лучшим трекам"),
+					QKeySequence(Qt::CTRL | Qt::Key_4),
+					this,
+					&MainWindow::viewByBestTracks);
+		action_view_by_best_tracks->setCheckable(true);
+		action_view_by_best_tracks->setActionGroup(group_view_by);
+
 		menu_view->addSeparator();
 
 		auto group_statistics_chart = new QActionGroup(this);
@@ -107,7 +116,7 @@ void MainWindow::initMenuBar()
 		// Вид -> Без графиков
 		auto action_statistics_chart_off = menu_view->addAction(
 					tr("Без графиков"),
-					QKeySequence(Qt::CTRL | Qt::Key_4),
+					QKeySequence(Qt::ALT | Qt::Key_1),
 					this,
 					&MainWindow::statisticsChartOff);
 		action_statistics_chart_off->setCheckable(true);
@@ -117,7 +126,7 @@ void MainWindow::initMenuBar()
 		// Вид -> По прослушиваниям
 		auto action_statistics_chart_play_counts = menu_view->addAction(
 					tr("По прослушиваниям"),
-					QKeySequence(Qt::CTRL | Qt::Key_5),
+					QKeySequence(Qt::ALT | Qt::Key_2),
 					this,
 					&MainWindow::statisticsChartPlayCounts);
 		action_statistics_chart_play_counts->setCheckable(true);
@@ -126,7 +135,7 @@ void MainWindow::initMenuBar()
 		// Вид -> По годам
 		auto action_statistics_chart_years = menu_view->addAction(
 					tr("По годам"),
-					QKeySequence(Qt::CTRL | Qt::Key_6),
+					QKeySequence(Qt::ALT | Qt::Key_3),
 					this,
 					&MainWindow::statisticsChartYears);
 		action_statistics_chart_years->setCheckable(true);
@@ -225,6 +234,15 @@ void MainWindow::viewByAlbums(bool /*checked*/)
 void MainWindow::viewByTracks(bool /*checked*/)
 {
 	if (_library_table->setViewByType(LibraryTable::VIEW_BY_TRACKS)) {
+		if (_library.has_value()) {
+			_library_table->showLibrary(_library.value());
+		}
+	}
+}
+
+void MainWindow::viewByBestTracks(bool /*checked*/)
+{
+	if (_library_table->setViewByType(LibraryTable::VIEW_BY_BEST_TRACKS)) {
 		if (_library.has_value()) {
 			_library_table->showLibrary(_library.value());
 		}

@@ -13,6 +13,7 @@ public:
 		VIEW_BY_ARTISTS,
 		VIEW_BY_ALBUMS,
 		VIEW_BY_TRACKS,
+		VIEW_BY_BEST_TRACKS,
 		NUM_OF_VIEW_BY_TYPES
 	};
 
@@ -37,6 +38,7 @@ private:
 	void showByArtists(const Library& library);
 	void showByAlbums(const Library& library);
 	void showByTracks(const Library& library);
+	void showByBestTracks(const Library& library);
 
 private:
 	ViewByTypes _view_by = VIEW_BY_ARTISTS;

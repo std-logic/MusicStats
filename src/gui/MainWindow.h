@@ -41,6 +41,7 @@ private slots:
 	void viewByArtists(bool checked);
 	void viewByAlbums(bool checked);
 	void viewByTracks(bool checked);
+	void viewByBestTracks(bool checked);
 
 	void statisticsChartOff(bool checked);
 	void statisticsChartPlayCounts(bool checked);
