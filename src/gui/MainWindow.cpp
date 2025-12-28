@@ -59,7 +59,7 @@ void MainWindow::initMenuBar()
 		menu_file->addAction(
 					QIcon::fromTheme(QIcon::ThemeIcon::ViewRefresh),
 					tr("Очистить"),
-					QKeySequence(Qt::CTRL | Qt::Key_C),
+					QKeySequence(Qt::CTRL | Qt::Key_R),
 					this,
 					&MainWindow::clearAll);
 	}

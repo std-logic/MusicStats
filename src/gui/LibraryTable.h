@@ -27,7 +27,8 @@ public:
 signals:
 
 private slots:
-	void sortIndicatorChanged(int index, Qt::SortOrder order);
+	void sortingChanged(int index, Qt::SortOrder order);
+	void copyTitle();
 
 private:
 	void init();

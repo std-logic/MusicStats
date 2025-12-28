@@ -3,6 +3,9 @@
 #include "common/Library.h"
 
 #include <QHeaderView>
+#include <QShortcut>
+#include <QClipboard>
+#include <QApplication>
 
 LibraryTable::LibraryTable(QWidget* parent)
 	: QTreeWidget{parent}
@@ -42,7 +45,7 @@ void LibraryTable::showLibrary(const Library& library)
 	show();
 }
 
-void LibraryTable::sortIndicatorChanged(int index, Qt::SortOrder order)
+void LibraryTable::sortingChanged(int index, Qt::SortOrder order)
 {
 	// Hardcode! In any view mode COLUMN_YEAR always must have index 1
 	_sorting_by_year = (index == 1);
@@ -51,16 +54,30 @@ void LibraryTable::sortIndicatorChanged(int index, Qt::SortOrder order)
 	_sorting_order = order;
 }
 
+void LibraryTable::copyTitle()
+{
+	auto selected_items = selectedItems();
+	if (!selected_items.isEmpty()) {
+		QString selected_text = selected_items.at(0)->text(0);
+		QClipboard* clipboard = QApplication::clipboard();
+		clipboard->setText(selected_text);
+	}
+}
+
 void LibraryTable::init()
 {
 	QFont default_font = font();
 	default_font.setPointSize(default_font.pointSize() + 2);
 	setFont(default_font);
 
+	// keep current sorting column between view modes
 	setSortingEnabled(true);
+	connect(header(), &QHeaderView::sortIndicatorChanged, this, &LibraryTable::sortingChanged);
 
-	connect(header(), &QHeaderView::sortIndicatorChanged,
-			this, &LibraryTable::sortIndicatorChanged);
+	// copy COLUMN_TITLE text by CTRL+C shortcut
+	auto shortcut = new QShortcut(QKeySequence(Qt::ControlModifier | Qt::Key_C), this);
+	shortcut->setContext(Qt::WidgetShortcut);
+	connect(shortcut, &QShortcut::activated, this, &LibraryTable::copyTitle);
 }
 
 void LibraryTable::showByArtists(const Library& library)
