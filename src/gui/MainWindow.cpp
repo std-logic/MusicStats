@@ -71,9 +71,9 @@ void MainWindow::initMenuBar()
 		auto group_view_by = new QActionGroup(this);
 		group_view_by->setExclusive(true);
 
-		// Вид -> По исполнителям
+		// Вид -> По группам
 		auto action_view_by_artists = menu_view->addAction(
-					tr("По исполнителям"),
+					tr("По группам"),
 					QKeySequence(Qt::CTRL | Qt::Key_1),
 					this,
 					&MainWindow::viewByArtists);
@@ -107,6 +107,15 @@ void MainWindow::initMenuBar()
 					&MainWindow::viewByBestTracks);
 		action_view_by_best_tracks->setCheckable(true);
 		action_view_by_best_tracks->setActionGroup(group_view_by);
+
+		// Вид -> Статистика
+		auto action_view_by_summary = menu_view->addAction(
+					tr("Статистика"),
+					QKeySequence(Qt::CTRL | Qt::Key_5),
+					this,
+					&MainWindow::viewBySummary);
+		action_view_by_summary->setCheckable(true);
+		action_view_by_summary->setActionGroup(group_view_by);
 
 		menu_view->addSeparator();
 
@@ -164,7 +173,7 @@ void MainWindow::initCentralWidgets()
 void MainWindow::showLibraryTitle(const Library& library)
 {
 	setWindowTitle(QString("%1 – %2 – %3: %4 – %5: %6 – %7: %8")
-				   .arg(tr("Статистика музыки"), library.title(), tr("Исполнителей"))
+				   .arg(tr("Статистика музыки"), library.title(), tr("Групп"))
 				   .arg(library.artistsCount())
 				   .arg(tr("Альбомов"))
 				   .arg(library.albumsCount())
@@ -243,6 +252,15 @@ void MainWindow::viewByTracks(bool /*checked*/)
 void MainWindow::viewByBestTracks(bool /*checked*/)
 {
 	if (_library_table->setViewByType(LibraryTable::VIEW_BY_BEST_TRACKS)) {
+		if (_library.has_value()) {
+			_library_table->showLibrary(_library.value());
+		}
+	}
+}
+
+void MainWindow::viewBySummary(bool /*checked*/)
+{
+	if (_library_table->setViewByType(LibraryTable::VIEW_BY_SUMMARY)) {
 		if (_library.has_value()) {
 			_library_table->showLibrary(_library.value());
 		}

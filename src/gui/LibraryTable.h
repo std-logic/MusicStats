@@ -14,6 +14,7 @@ public:
 		VIEW_BY_ALBUMS,
 		VIEW_BY_TRACKS,
 		VIEW_BY_BEST_TRACKS,
+		VIEW_BY_SUMMARY,
 		NUM_OF_VIEW_BY_TYPES
 	};
 
@@ -40,8 +41,11 @@ private:
 	void showByAlbums(const Library& library);
 	void showByTracks(const Library& library);
 	void showByBestTracks(const Library& library);
+	void showBySummary(const Library& library);
 
 private:
+	static const int TOP_SIZE = 10;
+
 	ViewByTypes _view_by = VIEW_BY_ARTISTS;
 
 	bool _sorting_by_year = false;

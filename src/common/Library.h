@@ -88,6 +88,76 @@ public:
 		return sum;
 	}
 
+	using TopArtistsData = std::pair<const Artist*, uint32_t>;
+	std::vector<TopArtistsData> topArtists(int top_size) const
+	{
+		std::vector<TopArtistsData> artists_list;
+		for (const auto& [artist_title, artist] : _artists) {
+			artists_list.emplace_back(TopArtistsData{&artist, artist.playCount()});
+		}
+		std::sort(artists_list.begin(), artists_list.end(),
+				  [](const TopArtistsData& a, const TopArtistsData& b)
+				  {return (a.second > b.second);});
+		return std::vector<TopArtistsData>{artists_list.begin(), artists_list.begin()+top_size};
+	}
+
+	using TopAlbumsData = std::pair<const Album*, uint32_t>;
+	std::vector<TopAlbumsData> topAlbums(int top_size) const
+	{
+		std::vector<TopAlbumsData> albums_list;
+		for (const auto& [artist_title, artist] : _artists) {
+			for (const auto& [album_title, album] : artist) {
+				albums_list.emplace_back(TopAlbumsData{&album, album.playCount()});
+			}
+		}
+		std::sort(albums_list.begin(), albums_list.end(),
+				  [](const TopAlbumsData& a, const TopAlbumsData& b)
+				  {return (a.second > b.second);});
+		return std::vector<TopAlbumsData>{albums_list.begin(), albums_list.begin()+top_size};
+	}
+
+	using TopTracksData = std::pair<const Track*, uint32_t>;
+	std::vector<TopTracksData> topTracks(int top_size) const
+	{
+		std::vector<TopTracksData> tracks_list;
+		for (const auto& [artist_title, artist] : _artists) {
+			for (const auto& [album_title, album] : artist) {
+				for (const auto& track : album) {
+					tracks_list.emplace_back(TopTracksData{&track, track.playCount()});
+				}
+			}
+		}
+		std::sort(tracks_list.begin(), tracks_list.end(),
+				  [](const TopTracksData& a, const TopTracksData& b)
+				  {return (a.second > b.second);});
+		return std::vector<TopTracksData>{tracks_list.begin(), tracks_list.begin()+top_size};
+	}
+
+	std::tuple<int, int, int> playedCount() const
+	{
+		int played_artists = 0, played_albums = 0, played_tracks = 0;
+		for (const auto& [artist_title, artist] : _artists) {
+			bool played_artist_found = false;
+			for (const auto& [album_title, album] : artist) {
+				bool played_album_found = false;
+				for (const auto& track : album) {
+					if (track.playCount()) {
+						if (!played_artist_found) {
+							played_artist_found = true;
+							++played_artists;
+						}
+						if (!played_album_found) {
+							played_album_found = true;
+							++played_albums;
+						}
+						++played_tracks;
+					}
+				}
+			}
+		}
+		return std::make_tuple(played_artists, played_albums, played_tracks);
+	}
+
 private:
 	QString _title;
 	ArtistsContainer _artists;

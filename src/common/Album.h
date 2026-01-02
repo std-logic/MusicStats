@@ -38,6 +38,9 @@ public:
 	inline bool isTitleEmpty() const noexcept
 	{ return _title.isEmpty(); }
 
+	inline QString artist() const
+	{ return !_tracks.empty() ? _tracks[0].artist() : QString(); }
+
 	auto minYear() const
 	{
 		auto min_year = Global::undefined_year;
