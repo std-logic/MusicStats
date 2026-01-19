@@ -18,11 +18,13 @@ public slots:
 
 signals:
 	void libraryReady(const Library& library);
+	void librariesReady(const std::vector<Library>& libraries);
 
 private:
 	std::list<Track> readTracks(const QString& file_name);
-	std::list<Track> readTracksDiff(const QString& file_name_1, const QString& file_name_2);
-	QString createLibraryTitleFromFileNames(const QStringList& file_names);
+	std::list<Track> calcTracksDiff(std::list<Track> tracks_1, std::list<Track> tracks_2);
+	QString createLibraryTitleFromFileName(const QString& file_name);
+	QString createLibraryTitleFromFileNames(const QString& file_name_1, const QString& file_name_2);
 	Library createLibraryFromTracks(const QString& title, const std::list<Track>& tracks);
 
 private:

@@ -22,6 +22,11 @@ void Gui::showLibrary(const Library& library)
 	_main_window->showLibrary(library);
 }
 
+void Gui::showLibraries(const std::vector<Library>& libraries)
+{
+	_main_window->showLibraries(libraries);
+}
+
 void Gui::initConnections()
 {
 	connect(_main_window.get(), &MainWindow::readFiles, this, &Gui::readFiles);

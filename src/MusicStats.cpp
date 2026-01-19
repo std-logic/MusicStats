@@ -22,4 +22,5 @@ void MusicStats::initConnections()
 {
 	QObject::connect(_gui.get(), &Gui::readFiles, _input.get(), &Input::readFiles);
 	QObject::connect(_input.get(), &Input::libraryReady, _gui.get(), &Gui::showLibrary);
+	QObject::connect(_input.get(), &Input::librariesReady, _gui.get(), &Gui::showLibraries);
 }

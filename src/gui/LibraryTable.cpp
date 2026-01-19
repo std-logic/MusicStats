@@ -36,11 +36,21 @@ void LibraryTable::showLibrary(const Library& library)
 {
 	clear();
 	switch (_view_by) {
-		case VIEW_BY_ARTISTS:		showByArtists(library);		break;
-		case VIEW_BY_ALBUMS:		showByAlbums(library);		break;
-		case VIEW_BY_TRACKS:		showByTracks(library);		break;
-		case VIEW_BY_BEST_TRACKS:	showByBestTracks(library);	break;
-		case VIEW_BY_SUMMARY:		showBySummary(library);		break;
+		case VIEW_BY_ARTISTS:		showByArtists(library);			break;
+		case VIEW_BY_ALBUMS:		showByAlbums(library);			break;
+		case VIEW_BY_TRACKS:		showByTracks(library);			break;
+		case VIEW_BY_BEST_TRACKS:	showByBestTracks(library);		break;
+		case VIEW_BY_SUMMARY:		showBySummary(library);			break;
+		default: return;
+	}
+	show();
+}
+
+void LibraryTable::showLibraries(const std::vector<Library>& libraries)
+{
+	clear();
+	switch (_view_by) {
+		case VIEW_BY_HISTORY:		showByHistory(libraries);		break;
 		default: return;
 	}
 	show();
@@ -332,9 +342,9 @@ void LibraryTable::showBySummary(const Library& library)
 					);
 
 	auto [played_artists, played_albums, played_tracks] = library.playedCount();
-	auto top_artists = library.topArtists(TOP_SIZE);
-	auto top_albums = library.topAlbums(TOP_SIZE);
-	auto top_tracks = library.topTracks(TOP_SIZE);
+	auto top_artists = library.topArtists(TOP_SIZE_FOR_SUMMARY);
+	auto top_albums = library.topAlbums(TOP_SIZE_FOR_SUMMARY);
+	auto top_tracks = library.topTracks(TOP_SIZE_FOR_SUMMARY);
 	auto artists_count = library.artistsCount();
 	auto albums_count = library.albumsCount();
 	auto tracks_count = library.tracksCount();
@@ -349,12 +359,10 @@ void LibraryTable::showBySummary(const Library& library)
 	item_top_artists->setBackgroundEverywhere(QColor(230, 230, 230));
 	items.append(item_top_artists);
 
-	for (int i = 0; i < TOP_SIZE; ++i) {
-		auto artist = top_artists[i].first;
-		auto play_count = top_artists[i].second;
+	for (int place = 0; auto [artist, play_count] : top_artists) {
 		auto item_artist = new LibraryTableItem(item_top_artists);
 		item_artist->setText(COLUMN_TITLE, QStringLiteral("%1. %2")
-				.arg(i+1, 2, 10, QChar('0')).arg(artist->title()));
+				.arg(++place, 2, 10, QChar('0')).arg(artist->title()));
 		item_artist->setText(COLUMN_YEAR, artist->yearString());
 		item_artist->setNumb(COLUMN_PLAY_COUNT, play_count);
 	}
@@ -367,12 +375,10 @@ void LibraryTable::showBySummary(const Library& library)
 	item_top_albums->setBackgroundEverywhere(QColor(230, 230, 230));
 	items.append(item_top_albums);
 
-	for (int i = 0; i < TOP_SIZE; ++i) {
-		auto album = top_albums[i].first;
-		auto play_count = top_albums[i].second;
+	for (int place = 0; auto [album, play_count] : top_albums) {
 		auto item_album = new LibraryTableItem(item_top_albums);
 		item_album->setText(COLUMN_TITLE, QStringLiteral("%1. [%2] %3")
-				.arg(i+1, 2, 10, QChar('0')).arg(album->artist(), album->title()));
+				.arg(++place, 2, 10, QChar('0')).arg(album->artist(), album->title()));
 		item_album->setText(COLUMN_YEAR, album->yearString());
 		item_album->setNumb(COLUMN_PLAY_COUNT, play_count);
 	}
@@ -385,14 +391,113 @@ void LibraryTable::showBySummary(const Library& library)
 	item_top_tracks->setBackgroundEverywhere(QColor(230, 230, 230));
 	items.append(item_top_tracks);
 
-	for (int i = 0; i < TOP_SIZE; ++i) {
-		auto track = top_tracks[i].first;
-		auto play_count = top_tracks[i].second;
+	for (int place = 0; auto [track, play_count] : top_tracks) {
 		auto item_track = new LibraryTableItem(item_top_tracks);
-		item_track->setText(COLUMN_TITLE, QStringLiteral("%1. [%2 - %3] %4")
-				.arg(i+1, 2, 10, QChar('0')).arg(track->artist(), track->album(), track->title()));
+		if (track->artist() == QStringLiteral("Разное")) {
+			item_track->setText(COLUMN_TITLE, QStringLiteral("%1. [%2] %3")
+					.arg(++place, 2, 10, QChar('0')).arg(track->artist(), track->title()));
+		} else {
+			item_track->setText(COLUMN_TITLE, QStringLiteral("%1. [%2 - %3] %4")
+					.arg(++place, 2, 10, QChar('0')).arg(track->artist(), track->album(), track->title()));
+		}
 		item_track->setText(COLUMN_YEAR, track->yearString());
 		item_track->setNumb(COLUMN_PLAY_COUNT, play_count);
+	}
+
+	addTopLevelItems(items);
+	expandAll();
+}
+
+void LibraryTable::showByHistory(const std::vector<Library>& libraries)
+{
+	enum ColumnsNames
+	{
+		COLUMN_TITLE,
+		COLUMN_YEAR,
+		COLUMN_PLAY_COUNT,
+		NUM_OF_COLUMNS
+	};
+	setColumnCount(NUM_OF_COLUMNS);
+	setColumnWidth(COLUMN_TITLE, 700);
+	sortByColumn(-1, Qt::DescendingOrder);
+	setHeaderLabels(QStringList()
+					<< tr("Трек")
+					<< tr("Год")
+					<< tr("Прослушиваний")
+					);
+
+	QList<QTreeWidgetItem*> items;
+
+	for (unsigned int i = 1; i < libraries.size(); ++i) {
+		const auto& prev_library = libraries[i-1];
+		const auto& library = libraries[i];
+
+		auto [played_artists, played_albums, played_tracks] = library.playedCount();
+		auto top_artists = library.topArtists(TOP_SIZE_FOR_HISTORY);
+		auto top_albums = library.topAlbums(TOP_SIZE_FOR_HISTORY);
+		auto top_tracks = library.topTracks(TOP_SIZE_FOR_HISTORY);
+		auto artists_count = library.artistsCount();
+		auto albums_count = library.albumsCount();
+		auto tracks_count = library.tracksCount();
+
+		auto item_library = new LibraryTableItem(this);
+		item_library->setText(COLUMN_TITLE, tr("%1 → %2")
+				.arg(prev_library.titleOnlyDate(), library.titleOnlyDate()));
+		item_library->setNumb(COLUMN_PLAY_COUNT, library.playCount());
+		item_library->setBackgroundEverywhere(QColor(220, 220, 220));
+		items.append(item_library);
+
+		// artists
+		auto item_top_artists = new LibraryTableItem(item_library);
+		item_top_artists->setText(COLUMN_TITLE, tr("Топ групп (прослушано %1/%2 - %3%)")
+				.arg(played_artists).arg(artists_count).arg(100*played_artists/artists_count));
+		item_top_artists->setText(COLUMN_PLAY_COUNT, QStringLiteral(" "));
+		item_top_artists->setBackgroundEverywhere(QColor(230, 230, 230));
+
+		for (int place = 0; auto [artist, play_count] : top_artists) {
+			auto item_artist = new LibraryTableItem(item_top_artists);
+			item_artist->setText(COLUMN_TITLE, QStringLiteral("%1. %2")
+					.arg(++place, 2, 10, QChar('0')).arg(artist->title()));
+			item_artist->setText(COLUMN_YEAR, artist->yearString());
+			item_artist->setNumb(COLUMN_PLAY_COUNT, play_count);
+		}
+
+		// albums
+		auto item_top_albums = new LibraryTableItem(item_library);
+		item_top_albums->setText(COLUMN_TITLE, tr("Топ альбомов (прослушано %1/%2 - %3%)")
+				.arg(played_albums).arg(albums_count).arg(100*played_albums/albums_count));
+		item_top_albums->setText(COLUMN_PLAY_COUNT, QStringLiteral(" "));
+		item_top_albums->setBackgroundEverywhere(QColor(230, 230, 230));
+		items.append(item_top_albums);
+
+		for (int place = 0; auto [album, play_count] : top_albums) {
+			auto item_album = new LibraryTableItem(item_top_albums);
+			item_album->setText(COLUMN_TITLE, QStringLiteral("%1. [%2] %3")
+					.arg(++place, 2, 10, QChar('0')).arg(album->artist(), album->title()));
+			item_album->setText(COLUMN_YEAR, album->yearString());
+			item_album->setNumb(COLUMN_PLAY_COUNT, play_count);
+		}
+
+		// tracks
+		auto item_top_tracks = new LibraryTableItem(item_library);
+		item_top_tracks->setText(COLUMN_TITLE, tr("Топ треков (прослушано %1/%2 - %3%)")
+				.arg(played_tracks).arg(tracks_count).arg(100*played_tracks/tracks_count));
+		item_top_tracks->setText(COLUMN_PLAY_COUNT, QStringLiteral(" "));
+		item_top_tracks->setBackgroundEverywhere(QColor(230, 230, 230));
+		items.append(item_top_tracks);
+
+		for (int place = 0; auto [track, play_count] : top_tracks) {
+			auto item_track = new LibraryTableItem(item_top_tracks);
+			if (track->artist() == QStringLiteral("Разное")) {
+				item_track->setText(COLUMN_TITLE, QStringLiteral("%1. [%2] %3")
+						.arg(++place, 2, 10, QChar('0')).arg(track->artist(), track->title()));
+			} else {
+				item_track->setText(COLUMN_TITLE, QStringLiteral("%1. [%2 - %3] %4")
+						.arg(++place, 2, 10, QChar('0')).arg(track->artist(), track->album(), track->title()));
+			}
+			item_track->setText(COLUMN_YEAR, track->yearString());
+			item_track->setNumb(COLUMN_PLAY_COUNT, play_count);
+		}
 	}
 
 	addTopLevelItems(items);

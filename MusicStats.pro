@@ -1,6 +1,6 @@
 QT += core gui widgets charts
 
-CONFIG += c++17
+CONFIG += c++20
 CONFIG += lrelease
 CONFIG += embed_translations
 

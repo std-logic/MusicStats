@@ -15,6 +15,7 @@ public:
 		VIEW_BY_TRACKS,
 		VIEW_BY_BEST_TRACKS,
 		VIEW_BY_SUMMARY,
+		VIEW_BY_HISTORY,
 		NUM_OF_VIEW_BY_TYPES
 	};
 
@@ -24,6 +25,7 @@ public:
 	bool setViewByType(ViewByTypes view_by);
 	void clearLibrary();
 	void showLibrary(const Library& library);
+	void showLibraries(const std::vector<Library>& libraries);
 
 signals:
 
@@ -42,9 +44,11 @@ private:
 	void showByTracks(const Library& library);
 	void showByBestTracks(const Library& library);
 	void showBySummary(const Library& library);
+	void showByHistory(const std::vector<Library>& libraries);
 
 private:
-	static const int TOP_SIZE = 10;
+	static const int TOP_SIZE_FOR_SUMMARY = 10;
+	static const int TOP_SIZE_FOR_HISTORY = 3;
 
 	ViewByTypes _view_by = VIEW_BY_ARTISTS;
 

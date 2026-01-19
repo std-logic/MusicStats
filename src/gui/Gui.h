@@ -16,6 +16,7 @@ public:
 public slots:
 	void show();
 	void showLibrary(const Library& library);
+	void showLibraries(const std::vector<Library>& libraries);
 
 signals:
 	void readFiles(const QStringList& file_names);

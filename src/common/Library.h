@@ -33,6 +33,12 @@ public:
 	{ _title = title; }
 	inline QString title() const
 	{ return _title; }
+	inline QString titleOnlyDate() const
+	{
+		QString title_cropped = _title;
+		title_cropped.remove(QStringLiteral("winamp_")).remove(QStringLiteral(".xml"));
+		return title_cropped;
+	}
 
 	auto minYear() const
 	{
