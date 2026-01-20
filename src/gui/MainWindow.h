@@ -54,6 +54,7 @@ private slots:
 	void viewByAlbums(bool checked);
 	void viewByTracks(bool checked);
 	void viewByBestTracks(bool checked);
+	void viewByGenres(bool checked);
 	void viewBySummary(bool checked);
 	void viewByHistory(bool checked);
 

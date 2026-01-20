@@ -164,6 +164,25 @@ public:
 		return std::make_tuple(played_artists, played_albums, played_tracks);
 	}
 
+	using GenresTracksData = std::vector<const Track*>;
+	using GenresAlbumsData = std::map<QString, GenresTracksData>;
+	using GenresArtistsData = std::map<QString, GenresAlbumsData>;
+	using GenresData = std::map<QString, std::pair<GenresArtistsData, int>>;
+	GenresData genres() const
+	{
+		GenresData genres;
+		for (const auto& [artist_title, artist] : _artists) {
+			for (const auto& [album_title, album] : artist) {
+				for (const auto& track : album) {
+					auto& map_item = genres[track.genre()];
+					map_item.first[track.artist()][track.album()].push_back(&track);
+					map_item.second++;
+				}
+			}
+		}
+		return genres;
+	}
+
 private:
 	QString _title;
 	ArtistsContainer _artists;

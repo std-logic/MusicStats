@@ -40,6 +40,7 @@ void LibraryTable::showLibrary(const Library& library)
 		case VIEW_BY_ALBUMS:		showByAlbums(library);			break;
 		case VIEW_BY_TRACKS:		showByTracks(library);			break;
 		case VIEW_BY_BEST_TRACKS:	showByBestTracks(library);		break;
+		case VIEW_BY_GENRES:		showByGenres(library);			break;
 		case VIEW_BY_SUMMARY:		showBySummary(library);			break;
 		default: return;
 	}
@@ -58,10 +59,12 @@ void LibraryTable::showLibraries(const std::vector<Library>& libraries)
 
 void LibraryTable::sortingChanged(int index, Qt::SortOrder order)
 {
-	// Hardcode! In any view mode COLUMN_YEAR always must have index 1
-	_sorting_by_year = (index == 1);
-	// Hardcode! In any view mode COLUMN_PLAY_COUNT always must be the last
-	_sorting_by_play_count = (index == (columnCount()-1));
+	if (index == -1) {
+		return;
+	}
+	QString text = headerItem()->text(index);
+	_sorting_by_year = (text == tr("Год"));
+	_sorting_by_play_count = (text == tr("Прослушиваний"));
 	_sorting_order = order;
 }
 
@@ -104,9 +107,6 @@ void LibraryTable::showByArtists(const Library& library)
 	};
 	setColumnCount(NUM_OF_COLUMNS);
 	setColumnWidth(COLUMN_TITLE, 500);
-	if (_sorting_by_year)				{ sortByColumn(COLUMN_YEAR, _sorting_order); }
-	else if (_sorting_by_play_count)	{ sortByColumn(COLUMN_PLAY_COUNT, _sorting_order); }
-	else								{ sortByColumn(COLUMN_TITLE, Qt::AscendingOrder); }
 	setHeaderLabels(QStringList()
 					<< tr("Группа")
 					<< tr("Год")
@@ -114,6 +114,9 @@ void LibraryTable::showByArtists(const Library& library)
 					<< tr("Треков")
 					<< tr("Прослушиваний")
 					);
+	if (_sorting_by_year)				{ sortByColumn(COLUMN_YEAR, _sorting_order); }
+	else if (_sorting_by_play_count)	{ sortByColumn(COLUMN_PLAY_COUNT, _sorting_order); }
+	else								{ sortByColumn(COLUMN_TITLE, Qt::AscendingOrder); }
 
 	QList<QTreeWidgetItem*> items;
 
@@ -170,15 +173,15 @@ void LibraryTable::showByAlbums(const Library& library)
 	};
 	setColumnCount(NUM_OF_COLUMNS);
 	setColumnWidth(COLUMN_TITLE, 600);
-	if (_sorting_by_year)				{ sortByColumn(COLUMN_YEAR, _sorting_order); }
-	else if (_sorting_by_play_count)	{ sortByColumn(COLUMN_PLAY_COUNT, _sorting_order); }
-	else								{ sortByColumn(COLUMN_TITLE, Qt::AscendingOrder); }
 	setHeaderLabels(QStringList()
 					<< tr("Альбом")
 					<< tr("Год")
 					<< tr("Треков")
 					<< tr("Прослушиваний")
 					);
+	if (_sorting_by_year)				{ sortByColumn(COLUMN_YEAR, _sorting_order); }
+	else if (_sorting_by_play_count)	{ sortByColumn(COLUMN_PLAY_COUNT, _sorting_order); }
+	else								{ sortByColumn(COLUMN_TITLE, Qt::AscendingOrder); }
 
 	QList<QTreeWidgetItem*> items;
 
@@ -226,14 +229,14 @@ void LibraryTable::showByTracks(const Library& library)
 	};
 	setColumnCount(NUM_OF_COLUMNS);
 	setColumnWidth(COLUMN_TITLE, 700);
-	if (_sorting_by_year)				{ sortByColumn(COLUMN_YEAR, _sorting_order); }
-	else if (_sorting_by_play_count)	{ sortByColumn(COLUMN_PLAY_COUNT, _sorting_order); }
-	else								{ sortByColumn(COLUMN_TITLE, Qt::AscendingOrder); }
 	setHeaderLabels(QStringList()
 					<< tr("Трек")
 					<< tr("Год")
 					<< tr("Прослушиваний")
 					);
+	if (_sorting_by_year)				{ sortByColumn(COLUMN_YEAR, _sorting_order); }
+	else if (_sorting_by_play_count)	{ sortByColumn(COLUMN_PLAY_COUNT, _sorting_order); }
+	else								{ sortByColumn(COLUMN_TITLE, Qt::AscendingOrder); }
 
 	QList<QTreeWidgetItem*> items;
 
@@ -274,15 +277,15 @@ void LibraryTable::showByBestTracks(const Library& library)
 	};
 	setColumnCount(NUM_OF_COLUMNS);
 	setColumnWidth(COLUMN_TITLE, 600);
-	if (_sorting_by_year)				{ sortByColumn(COLUMN_YEAR, _sorting_order); }
-	else if (_sorting_by_play_count)	{ sortByColumn(COLUMN_PLAY_COUNT, _sorting_order); }
-	else								{ sortByColumn(COLUMN_PLAY_COUNT, Qt::DescendingOrder); }
 	setHeaderLabels(QStringList()
 					<< tr("Трек")
 					<< tr("Год")
 					<< tr("Треков")
 					<< tr("Прослушиваний")
 					);
+	if (_sorting_by_year)				{ sortByColumn(COLUMN_YEAR, _sorting_order); }
+	else if (_sorting_by_play_count)	{ sortByColumn(COLUMN_PLAY_COUNT, _sorting_order); }
+	else								{ sortByColumn(COLUMN_PLAY_COUNT, Qt::DescendingOrder); }
 
 	QList<QTreeWidgetItem*> items;
 
@@ -316,6 +319,66 @@ void LibraryTable::showByBestTracks(const Library& library)
 				}
 				item_track->setText(COLUMN_YEAR, track.yearString());
 				item_track->setNumb(COLUMN_PLAY_COUNT, track.playCount());
+			}
+		}
+	}
+
+	addTopLevelItems(items);
+}
+
+void LibraryTable::showByGenres(const Library& library)
+{
+	enum ColumnsNames
+	{
+		COLUMN_TITLE,
+		COLUMN_TRACKS,
+		NUM_OF_COLUMNS
+	};
+	setColumnCount(NUM_OF_COLUMNS);
+	setColumnWidth(COLUMN_TITLE, 800);
+	setHeaderLabels(QStringList()
+					<< tr("Жанр")
+					<< tr("Треков")
+					);
+	sortByColumn(COLUMN_TRACKS, Qt::DescendingOrder);
+
+	auto genres = library.genres();
+
+	QList<QTreeWidgetItem*> items;
+
+	auto item_all = new LibraryTableItem(this);
+	item_all->setIcon(COLUMN_TITLE, QIcon::fromTheme(QIcon::ThemeIcon::HelpAbout));
+	item_all->setText(COLUMN_TITLE, createOverallString(genres.size()));
+	item_all->setNumb(COLUMN_TRACKS, library.tracksCount());
+	item_all->setBold(true);
+	item_all->setBackgroundEverywhere(QColor(210, 210, 210));
+	items.append(item_all);
+
+	for (const auto& [genre_title, genre_pair] : genres) {
+		auto& artists_map = genre_pair.first;
+		auto tracks_num = genre_pair.second;
+		auto item_genre = new LibraryTableItem(this);
+		item_genre->setText(COLUMN_TITLE, genre_title);
+		item_genre->setNumb(COLUMN_TRACKS, tracks_num);
+		item_genre->setBackgroundEverywhere(QColor(217, 217, 217));
+		items.append(item_genre);
+
+		for (const auto& [artist_title, albums_map] : artists_map) {
+			auto item_artist = new LibraryTableItem(item_genre);
+			item_artist->setText(COLUMN_TITLE, artist_title);
+			item_artist->setText(COLUMN_TRACKS, QStringLiteral(" "));
+			item_artist->setBackgroundEverywhere(QColor(225, 225, 225));
+
+			for (const auto& [album_title, tracks] : albums_map) {
+				auto item_album = new LibraryTableItem(item_artist);
+				item_album->setText(COLUMN_TITLE, album_title);
+				item_album->setText(COLUMN_TRACKS, QStringLiteral(" "));
+				item_album->setBackgroundEverywhere(QColor(232, 232, 232));
+
+				for (auto track : tracks) {
+					auto item_track = new LibraryTableItem(item_album);
+					item_track->setText(COLUMN_TITLE, track->titleWithTrackNumber());
+				}
 			}
 		}
 	}

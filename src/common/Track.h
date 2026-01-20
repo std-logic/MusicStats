@@ -54,6 +54,13 @@ public:
 	inline QString artist() const
 	{ return _artist; }
 
+	inline void setGenre(const QString& genre)
+	{ _genre = genre; }
+	inline void setGenre(QString&& genre)
+	{ _genre = std::move(genre); }
+	inline QString genre() const
+	{ return _genre; }
+
 	inline void setTrackNumer(uint32_t track_number)
 	{ _track_number = track_number; }
 	inline uint32_t trackNumber() const
@@ -89,6 +96,7 @@ private:
 	QString _title;
 	QString _album;
 	QString _artist;
+	QString _genre;
 	uint32_t _track_number = Global::undefined_track_number;
 	uint32_t _year = Global::undefined_year;
 	uint32_t _play_count = 0;

@@ -65,6 +65,10 @@ std::list<Track> XmlParser::readFile(const QString& file_name)
 					if (xml.readNextStartElement()) {
 						curr_track.setAlbum(xml.readElementText());
 					}
+				} else if (element_name == "Genre") {
+					if (xml.readNextStartElement()) {
+						curr_track.setGenre(xml.readElementText());
+					}
 				} else if (element_name == "Size") {
 					if (xml.readNextStartElement()) {
 						curr_track.setSize(xml.readElementText().toInt(&conv_ok));

@@ -126,10 +126,20 @@ void MainWindow::initMenuBar()
 		action_view_by_best_tracks->setActionGroup(group_view_by);
 		_menu_actions[SHOW_LIBRARY].push_back(action_view_by_best_tracks);
 
+		// Вид -> По жанрам
+		auto action_view_by_genres = menu_view->addAction(
+					tr("По жанрам"),
+					QKeySequence(Qt::CTRL | Qt::Key_5),
+					this,
+					&MainWindow::viewByGenres);
+		action_view_by_genres->setCheckable(true);
+		action_view_by_genres->setActionGroup(group_view_by);
+		_menu_actions[SHOW_LIBRARY].push_back(action_view_by_genres);
+
 		// Вид -> Сводка
 		auto action_view_by_summary = menu_view->addAction(
 					tr("Сводка"),
-					QKeySequence(Qt::CTRL | Qt::Key_5),
+					QKeySequence(Qt::CTRL | Qt::Key_6),
 					this,
 					&MainWindow::viewBySummary);
 		action_view_by_summary->setCheckable(true);
@@ -139,7 +149,7 @@ void MainWindow::initMenuBar()
 		// Вид -> История
 		auto action_view_by_history = menu_view->addAction(
 					tr("История"),
-					QKeySequence(Qt::CTRL | Qt::Key_6),
+					QKeySequence(Qt::CTRL | Qt::Key_7),
 					this,
 					&MainWindow::viewByHistory);
 		action_view_by_history->setCheckable(true);
@@ -357,6 +367,15 @@ void MainWindow::viewByTracks(bool /*checked*/)
 void MainWindow::viewByBestTracks(bool /*checked*/)
 {
 	if (_library_table->setViewByType(LibraryTable::VIEW_BY_BEST_TRACKS)) {
+		if (_library.has_value()) {
+			_library_table->showLibrary(_library.value());
+		}
+	}
+}
+
+void MainWindow::viewByGenres(bool /*checked*/)
+{
+	if (_library_table->setViewByType(LibraryTable::VIEW_BY_GENRES)) {
 		if (_library.has_value()) {
 			_library_table->showLibrary(_library.value());
 		}

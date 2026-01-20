@@ -14,6 +14,7 @@ public:
 		VIEW_BY_ALBUMS,
 		VIEW_BY_TRACKS,
 		VIEW_BY_BEST_TRACKS,
+		VIEW_BY_GENRES,
 		VIEW_BY_SUMMARY,
 		VIEW_BY_HISTORY,
 		NUM_OF_VIEW_BY_TYPES
@@ -43,6 +44,7 @@ private:
 	void showByAlbums(const Library& library);
 	void showByTracks(const Library& library);
 	void showByBestTracks(const Library& library);
+	void showByGenres(const Library& library);
 	void showBySummary(const Library& library);
 	void showByHistory(const std::vector<Library>& libraries);
 
