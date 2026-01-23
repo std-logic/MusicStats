@@ -348,7 +348,7 @@ void LibraryTable::showByGenres(const Library& library)
 
 	auto item_all = new LibraryTableItem(this);
 	item_all->setIcon(COLUMN_TITLE, QIcon::fromTheme(QIcon::ThemeIcon::HelpAbout));
-	item_all->setText(COLUMN_TITLE, createOverallString(genres.size()));
+	item_all->setText(COLUMN_TITLE, createOverallString(genres.size() - 2)); // without "* Rock"/"* Metal"
 	item_all->setNumb(COLUMN_TRACKS, library.tracksCount());
 	item_all->setBold(true);
 	item_all->setBackgroundEverywhere(QColor(210, 210, 210));
@@ -365,13 +365,23 @@ void LibraryTable::showByGenres(const Library& library)
 
 		for (const auto& [artist_title, albums_map] : artists_map) {
 			auto item_artist = new LibraryTableItem(item_genre);
-			item_artist->setText(COLUMN_TITLE, artist_title);
+			if (genre_title.startsWith('*') && (artist_title != QStringLiteral("Разное"))) { // "* Rock"/"* Metal"
+				item_artist->setText(COLUMN_TITLE, QStringLiteral("%1 [%2]")
+						.arg(artist_title, (*albums_map.begin()).second.front()->genre()));
+			} else {
+				item_artist->setText(COLUMN_TITLE, artist_title);
+			}
 			item_artist->setText(COLUMN_TRACKS, QStringLiteral(" "));
 			item_artist->setBackgroundEverywhere(QColor(225, 225, 225));
 
 			for (const auto& [album_title, tracks] : albums_map) {
 				auto item_album = new LibraryTableItem(item_artist);
-				item_album->setText(COLUMN_TITLE, album_title);
+				if (genre_title.startsWith('*') && (artist_title == QStringLiteral("Разное"))) { // "* Rock"/"* Metal"
+					item_album->setText(COLUMN_TITLE, QStringLiteral("%1 [%2]")
+							.arg(album_title, tracks.front()->genre()));
+				} else {
+					item_album->setText(COLUMN_TITLE, album_title);
+				}
 				item_album->setText(COLUMN_TRACKS, QStringLiteral(" "));
 				item_album->setBackgroundEverywhere(QColor(232, 232, 232));
 

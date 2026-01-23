@@ -174,9 +174,19 @@ public:
 		for (const auto& [artist_title, artist] : _artists) {
 			for (const auto& [album_title, album] : artist) {
 				for (const auto& track : album) {
-					auto& map_item = genres[track.genre()];
+					auto genre_title = track.genre();
+					auto& map_item = genres[genre_title];
 					map_item.first[track.artist()][track.album()].push_back(&track);
 					map_item.second++;
+					if (genre_title.contains(QStringLiteral("Rock"))) {
+						auto& map_item_rock = genres[QStringLiteral("* Rock")];
+						map_item_rock.first[track.artist()][track.album()].push_back(&track);
+						map_item_rock.second++;
+					} else if (genre_title.contains(QStringLiteral("Metal"))) {
+						auto& map_item_metal = genres[QStringLiteral("* Metal")];
+						map_item_metal.first[track.artist()][track.album()].push_back(&track);
+						map_item_metal.second++;
+					}
 				}
 			}
 		}

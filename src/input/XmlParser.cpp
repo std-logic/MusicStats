@@ -72,37 +72,27 @@ std::list<Track> XmlParser::readFile(const QString& file_name)
 				} else if (element_name == "Size") {
 					if (xml.readNextStartElement()) {
 						curr_track.setSize(xml.readElementText().toInt(&conv_ok));
-						if (!conv_ok) {
-							qDebug() << "Wrong Size!";
-						}
+						if (!conv_ok) { qDebug() << "Wrong Size!"; }
 					}
 				} else if (element_name == "Total Time") {
 					if (xml.readNextStartElement()) {
 						curr_track.setTime(xml.readElementText().toInt(&conv_ok));
-						if (!conv_ok) {
-							qDebug() << "Wrong Total Time!";
-						}
+						if (!conv_ok) { qDebug() << "Wrong Total Time!"; }
 					}
 				} else if (element_name == "Track Number") {
 					if (xml.readNextStartElement()) {
 						curr_track.setTrackNumer(xml.readElementText().toInt(&conv_ok));
-						if (!conv_ok) {
-							qDebug() << "Wrong Track Number!";
-						}
+						if (!conv_ok) { qDebug() << "Wrong Track Number!"; }
 					}
 				} else if (element_name == "Year") {
 					if (xml.readNextStartElement()) {
 						curr_track.setYear(xml.readElementText().toUInt(&conv_ok));
-						if (!conv_ok) {
-							qDebug() << "Wrong Year!";
-						}
+						if (!conv_ok) { qDebug() << "Wrong Year!"; }
 					}
 				} else if (element_name == "Play Count") {
 					if (xml.readNextStartElement()) {
 						curr_track.setPlayCount(xml.readElementText().toUInt(&conv_ok));
-						if (!conv_ok) {
-							qDebug() << "Wrong Play Count!";
-						}
+						if (!conv_ok) { qDebug() << "Wrong Play Count!"; }
 					}
 				}
 			}
