@@ -10,6 +10,7 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 
 TARGET = MusicStats
 DESTDIR = $$PWD/bin
+RC_FILE = $$PWD/res/MusicStats.rc
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
