@@ -255,7 +255,7 @@ void MainWindow::initCentralWidgets()
 
 void MainWindow::showLibraryTitle(const Library& library)
 {
-	setWindowTitle(QString("%1 – %2 – %3: %4 – %5: %6 – %7: %8")
+	setWindowTitle(QString("%1 • %2 • %3: %4 • %5: %6 • %7: %8")
 				   .arg(tr("Статистика музыки"),
 						library.titleOnlyDate(),
 						tr("Групп"))
@@ -268,7 +268,7 @@ void MainWindow::showLibraryTitle(const Library& library)
 
 void MainWindow::showLibrariesTitle(const std::vector<Library>& libraries)
 {
-	setWindowTitle(QString("%1 – %2 → %3 – %4: %5")
+	setWindowTitle(QString("%1 • %2 → %3 • %4: %5")
 				   .arg(tr("Статистика музыки"),
 						libraries.front().titleOnlyDate(),
 						libraries.back().titleOnlyDate(),
