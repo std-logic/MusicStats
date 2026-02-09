@@ -3,11 +3,6 @@
 #include <QFile>
 #include <QXmlStreamReader>
 #include <QDebug>
-// #include <QElapsedTimer>
-
-XmlParser::XmlParser()
-{
-}
 
 std::list<Track> XmlParser::readFile(const QString& file_name)
 {

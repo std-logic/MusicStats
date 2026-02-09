@@ -4,8 +4,6 @@
 
 #include <QObject>
 
-class XmlParser;
-
 class Input : public QObject
 {
 	Q_OBJECT
@@ -26,7 +24,4 @@ private:
 	QString createLibraryTitleFromFileName(const QString& file_name);
 	QString createLibraryTitleFromFileNames(const QString& file_name_1, const QString& file_name_2);
 	Library createLibraryFromTracks(const QString& title, const std::list<Track>& tracks);
-
-private:
-	std::unique_ptr<XmlParser> _xml_parser;
 };

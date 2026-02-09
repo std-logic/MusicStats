@@ -9,7 +9,7 @@
 class XmlParser
 {
 public:
-	XmlParser();
+	XmlParser() = delete;
 
-	std::list<Track> readFile(const QString& file_name);
+	static std::list<Track> readFile(const QString& file_name);
 };

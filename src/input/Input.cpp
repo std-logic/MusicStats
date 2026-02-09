@@ -8,7 +8,6 @@
 
 Input::Input(QObject* parent)
 	: QObject{parent}
-	, _xml_parser{std::make_unique<XmlParser>()}
 {
 }
 
@@ -54,7 +53,7 @@ void Input::readFiles(const QStringList& file_names)
 
 std::list<Track> Input::readTracks(const QString& file_name)
 {
-	return _xml_parser->readFile(file_name);
+	return XmlParser::readFile(file_name);
 }
 
 std::list<Track> Input::calcTracksDiff(std::list<Track> tracks_1, std::list<Track> tracks_2)
