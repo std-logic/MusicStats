@@ -7,8 +7,6 @@
 #include <QString>
 
 #include <map>
-// #include <algorithm>
-// #include <numeric>
 
 class Artist
 {
@@ -38,19 +36,27 @@ public:
 	inline bool isTitleEmpty() const noexcept
 	{ return _title.isEmpty(); }
 
+	inline QString genre() const
+	{
+		if (_albums.empty()) { return QString(); }
+		QString genre_first = _albums.begin()->second.genre();
+		QString genre_last = _albums.rbegin()->second.genre();
+		return (genre_first == genre_last) ? genre_first : QString("[Разные]");
+	}
+
 	auto minYear() const
 	{
 		auto min_year = Global::undefined_year;
-		for (const auto& album : _albums) {
-			min_year = Helper::checkMinYear(min_year, album.second.minYear());
+		for (const auto& item : _albums) {
+			min_year = Helper::checkMinYear(min_year, item.second.minYear());
 		}
 		return min_year;
 	}
 	auto maxYear() const
 	{
 		auto max_year = Global::undefined_year;
-		for (const auto& album : _albums) {
-			max_year = Helper::checkMaxYear(max_year, album.second.maxYear());
+		for (const auto& item : _albums) {
+			max_year = Helper::checkMaxYear(max_year, item.second.maxYear());
 		}
 		return max_year;
 	}
@@ -60,18 +66,21 @@ public:
 	uint32_t playCount() const
 	{
 		uint32_t sum = 0;
-		for (const auto& album : _albums) {
-			sum += album.second.playCount();
-		}
+		for (const auto& item : _albums) { sum += item.second.playCount(); }
 		return sum;
 	}
 
 	uint64_t size() const
 	{
 		auto sum = uint64_t(0);
-		for (const auto& album : _albums) {
-			sum += album.second.size();
-		}
+		for (const auto& item : _albums) { sum += item.second.size(); }
+		return sum;
+	}
+
+	uint64_t time() const
+	{
+		auto sum = uint64_t(0);
+		for (const auto& item : _albums) { sum += item.second.time(); }
 		return sum;
 	}
 
@@ -81,10 +90,22 @@ public:
 	auto tracksCount() const
 	{
 		size_t sum = 0;
-		for (const auto& album : _albums) {
-			sum += album.second.tracksCount();
-		}
+		for (const auto& item : _albums) { sum += item.second.tracksCount(); }
 		return sum;
+	}
+
+	QString fullInfo() const
+	{
+		QString text;
+		text += QString("Группа: %1").arg(_title);
+		text += QString("\nГод: %1").arg(yearString());
+		text += QString("\nАльбомов: %1").arg(albumsCount());
+		text += QString("\nТреков: %1").arg(tracksCount());
+		text += QString("\nПрослушиваний: %1").arg(playCount());
+		text += QString("\nЖанр: %1").arg(genre());
+		text += QString("\nДлина: %1").arg(Helper::timeString(time()));
+		text += QString("\nРазмер: %1").arg(Helper::sizeString(size()));
+		return text;
 	}
 
 private:

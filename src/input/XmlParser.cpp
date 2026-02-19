@@ -64,6 +64,10 @@ std::list<Track> XmlParser::readFile(const QString& file_name)
 					if (xml.readNextStartElement()) {
 						curr_track.setGenre(xml.readElementText());
 					}
+				} else if (element_name == "Comments") {
+					if (xml.readNextStartElement()) {
+						curr_track.setComments(xml.readElementText());
+					}
 				} else if (element_name == "Size") {
 					if (xml.readNextStartElement()) {
 						curr_track.setSize(xml.readElementText().toInt(&conv_ok));
@@ -84,10 +88,29 @@ std::list<Track> XmlParser::readFile(const QString& file_name)
 						curr_track.setYear(xml.readElementText().toUInt(&conv_ok));
 						if (!conv_ok) { qDebug() << "Wrong Year!"; }
 					}
+				} else if (element_name == "Bit Rate") {
+					if (xml.readNextStartElement()) {
+						curr_track.setBitrate(xml.readElementText().toUInt(&conv_ok));
+						if (!conv_ok) { qDebug() << "Wrong Bit Rate!"; }
+					}
 				} else if (element_name == "Play Count") {
 					if (xml.readNextStartElement()) {
 						curr_track.setPlayCount(xml.readElementText().toUInt(&conv_ok));
 						if (!conv_ok) { qDebug() << "Wrong Play Count!"; }
+					}
+				} else if (element_name == "Composer") {
+					if (xml.readNextStartElement()) {
+						curr_track.setComposer(xml.readElementText());
+					}
+				} else if (element_name == "Publisher") {
+					if (xml.readNextStartElement()) {
+						curr_track.setPublisher(xml.readElementText());
+					}
+				} else if (element_name == "Location") {
+					if (xml.readNextStartElement()) {
+						QString location = xml.readElementText();
+						auto format_start = location.lastIndexOf('.') + 1;
+						curr_track.setFormat(location.sliced(format_start));
 					}
 				}
 			}

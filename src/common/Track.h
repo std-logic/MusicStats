@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Global.h"
+#include "Helper.h"
 
 #include <QString>
 
@@ -61,6 +62,34 @@ public:
 	inline QString genre() const
 	{ return _genre; }
 
+	inline void setComposer(const QString& composer)
+	{ _composer = composer; }
+	inline void setComposer(QString&& composer)
+	{ _composer = std::move(composer); }
+	inline QString composer() const
+	{ return _composer; }
+
+	inline void setFormat(const QString& format)
+	{ _format = format; }
+	inline void setFormat(QString&& format)
+	{ _format = std::move(format); }
+	inline QString format() const
+	{ return _format; }
+
+	inline void setPublisher(const QString& publisher)
+	{ _publisher = publisher; }
+	inline void setPublisher(QString&& publisher)
+	{ _publisher = std::move(publisher); }
+	inline QString publisher() const
+	{ return _publisher; }
+
+	inline void setComments(const QString& comments)
+	{ _comments = comments; }
+	inline void setComments(QString&& comments)
+	{ _comments = std::move(comments); }
+	inline QString comments() const
+	{ return _comments; }
+
 	inline void setTrackNumer(uint32_t track_number)
 	{ _track_number = track_number; }
 	inline uint32_t trackNumber() const
@@ -92,14 +121,48 @@ public:
 	inline uint32_t time() const
 	{ return _time; }
 
+	inline void setBitrate(uint32_t bitrate)
+	{ _bitrate = bitrate; }
+	inline uint32_t bitrate() const
+	{ return _bitrate; }
+
+	QString fullInfo() const
+	{
+		QString text;
+		text += QString("Трек: %1").arg(_title);
+		if (_year != Global::undefined_year) {
+			text += QString("\nГод: %1").arg(yearString());
+		}
+		text += QString("\nПрослушиваний: %1").arg(_play_count);
+		text += QString("\nЖанр: %1").arg(_genre);
+		text += QString("\nДлина: %1").arg(Helper::timeString(_time));
+		text += QString("\nРазмер: %1").arg(Helper::sizeString(_size));
+		text += QString("\nБитрейт: %1 кбит/с (%2)").arg(_bitrate).arg(_format);
+		if (!_composer.isEmpty()) {
+			text += QString("\nКомпозитор: %1").arg(_composer);
+		}
+		if (!_publisher.isEmpty()) {
+			text += QString("\nИздатель: %1").arg(_publisher);
+		}
+		if (!_comments.isEmpty()) {
+			text += QString("\n\n%1").arg(_comments);
+		}
+		return text;
+	}
+
 private:
 	QString _title;
 	QString _album;
 	QString _artist;
 	QString _genre;
+	QString _composer;
+	QString _format;
+	QString _publisher;
+	QString _comments;
 	uint32_t _track_number = Global::undefined_track_number;
 	uint32_t _year = Global::undefined_year;
 	uint32_t _play_count = 0;
 	uint32_t _size = 0;
 	uint32_t _time = 0;
+	uint32_t _bitrate = 0;
 };

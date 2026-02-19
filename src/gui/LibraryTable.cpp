@@ -6,6 +6,7 @@
 #include <QShortcut>
 #include <QClipboard>
 #include <QApplication>
+#include <QToolTip>
 
 LibraryTable::LibraryTable(QWidget* parent)
 	: QTreeWidget{parent}
@@ -92,6 +93,11 @@ void LibraryTable::init()
 	auto shortcut = new QShortcut(QKeySequence(Qt::ControlModifier | Qt::Key_C), this);
 	shortcut->setContext(Qt::WidgetShortcut);
 	connect(shortcut, &QShortcut::activated, this, &LibraryTable::copyTitle);
+
+	// show long tooltip by click (because default tooltip have limited duration)
+	connect(this, &LibraryTable::itemClicked, this, [](QTreeWidgetItem *item, int /*column*/) {
+		QToolTip::showText(QCursor::pos(), item->toolTip(0), nullptr, QRect(), 999000);
+	});
 }
 
 void LibraryTable::showByArtists(const Library& library)
@@ -123,6 +129,7 @@ void LibraryTable::showByArtists(const Library& library)
 	auto item_all = new LibraryTableItem(this);
 	item_all->setIcon(COLUMN_TITLE, QIcon::fromTheme(QIcon::ThemeIcon::HelpAbout));
 	item_all->setText(COLUMN_TITLE, createOverallString(library.artistsCount()));
+	item_all->setToolTip(COLUMN_TITLE, library.fullInfo());
 	item_all->setText(COLUMN_YEAR, library.yearString());
 	item_all->setNumb(COLUMN_ALBUMS, library.albumsCount());
 	item_all->setNumb(COLUMN_TRACKS, library.tracksCount());
@@ -134,6 +141,7 @@ void LibraryTable::showByArtists(const Library& library)
 	for (const auto& [artist_title, artist] : library) {
 		auto item_artist = new LibraryTableItem(this);
 		item_artist->setText(COLUMN_TITLE, artist_title);
+		item_artist->setToolTip(COLUMN_TITLE, artist.fullInfo());
 		item_artist->setText(COLUMN_YEAR, artist.yearString());
 		item_artist->setNumb(COLUMN_ALBUMS, artist.albumsCount());
 		item_artist->setNumb(COLUMN_TRACKS, artist.tracksCount());
@@ -144,6 +152,7 @@ void LibraryTable::showByArtists(const Library& library)
 		for (const auto& [album_title, album] : artist) {
 			auto item_album = new LibraryTableItem(item_artist);
 			item_album->setText(COLUMN_TITLE, album_title);
+			item_album->setToolTip(COLUMN_TITLE, album.fullInfo());
 			item_album->setText(COLUMN_YEAR, album.yearString());
 			item_album->setNumb(COLUMN_TRACKS, album.tracksCount());
 			item_album->setNumb(COLUMN_PLAY_COUNT, album.playCount());
@@ -152,6 +161,7 @@ void LibraryTable::showByArtists(const Library& library)
 			for (const auto& track : album) {
 				auto item_track = new LibraryTableItem(item_album);
 				item_track->setText(COLUMN_TITLE, track.titleWithTrackNumber());
+				item_track->setToolTip(COLUMN_TITLE, track.fullInfo());
 				item_track->setText(COLUMN_YEAR, track.yearString());
 				item_track->setNumb(COLUMN_PLAY_COUNT, track.playCount());
 			}
@@ -188,6 +198,7 @@ void LibraryTable::showByAlbums(const Library& library)
 	auto item_all = new LibraryTableItem(this);
 	item_all->setIcon(COLUMN_TITLE, QIcon::fromTheme(QIcon::ThemeIcon::HelpAbout));
 	item_all->setText(COLUMN_TITLE, createOverallString(library.albumsCount()));
+	item_all->setToolTip(COLUMN_TITLE, library.fullInfo());
 	item_all->setText(COLUMN_YEAR, library.yearString());
 	item_all->setNumb(COLUMN_TRACKS, library.tracksCount());
 	item_all->setNumb(COLUMN_PLAY_COUNT, library.playCount());
@@ -200,6 +211,7 @@ void LibraryTable::showByAlbums(const Library& library)
 			auto item_album = new LibraryTableItem(this);
 			item_album->setText(COLUMN_TITLE, QStringLiteral("[%1] %2")
 					.arg(artist_title, album_title));
+			item_album->setToolTip(COLUMN_TITLE, album.fullInfo());
 			item_album->setText(COLUMN_YEAR, album.yearString());
 			item_album->setNumb(COLUMN_TRACKS, album.tracksCount());
 			item_album->setNumb(COLUMN_PLAY_COUNT, album.playCount());
@@ -209,6 +221,7 @@ void LibraryTable::showByAlbums(const Library& library)
 			for (const auto& track : album) {
 				auto item_track = new LibraryTableItem(item_album);
 				item_track->setText(COLUMN_TITLE, track.titleWithTrackNumber());
+				item_track->setToolTip(COLUMN_TITLE, track.fullInfo());
 				item_track->setText(COLUMN_YEAR, track.yearString());
 				item_track->setNumb(COLUMN_PLAY_COUNT, track.playCount());
 			}
@@ -243,6 +256,7 @@ void LibraryTable::showByTracks(const Library& library)
 	auto item_all = new LibraryTableItem(this);
 	item_all->setIcon(COLUMN_TITLE, QIcon::fromTheme(QIcon::ThemeIcon::HelpAbout));
 	item_all->setText(COLUMN_TITLE, createOverallString(library.tracksCount()));
+	item_all->setToolTip(COLUMN_TITLE, library.fullInfo());
 	item_all->setText(COLUMN_YEAR, library.yearString());
 	item_all->setNumb(COLUMN_PLAY_COUNT, library.playCount());
 	item_all->setBold(true);
@@ -255,6 +269,7 @@ void LibraryTable::showByTracks(const Library& library)
 				auto item_track = new LibraryTableItem(this);
 				item_track->setText(COLUMN_TITLE, QStringLiteral("[%1 - %2] %3")
 						.arg(artist_title, album_title, track.titleWithTrackNumber()));
+				item_track->setToolTip(COLUMN_TITLE, track.fullInfo());
 				item_track->setText(COLUMN_YEAR, track.yearString());
 				item_track->setNumb(COLUMN_PLAY_COUNT, track.playCount());
 				items.append(item_track);
@@ -292,6 +307,7 @@ void LibraryTable::showByBestTracks(const Library& library)
 	auto item_all = new LibraryTableItem(this);
 	item_all->setIcon(COLUMN_TITLE, QIcon::fromTheme(QIcon::ThemeIcon::HelpAbout));
 	item_all->setText(COLUMN_TITLE, createOverallString(library.artistsCount()));
+	item_all->setToolTip(COLUMN_TITLE, library.fullInfo());
 	item_all->setText(COLUMN_YEAR, library.yearString());
 	item_all->setNumb(COLUMN_TRACKS, library.tracksCount());
 	item_all->setNumb(COLUMN_PLAY_COUNT, library.playCount());
@@ -302,6 +318,7 @@ void LibraryTable::showByBestTracks(const Library& library)
 	for (const auto& [artist_title, artist] : library) {
 		auto item_artist = new LibraryTableItem(this);
 		item_artist->setText(COLUMN_TITLE, artist_title);
+		item_artist->setToolTip(COLUMN_TITLE, artist.fullInfo());
 		item_artist->setText(COLUMN_YEAR, artist.yearString());
 		item_artist->setNumb(COLUMN_TRACKS, artist.tracksCount());
 		item_artist->setNumb(COLUMN_PLAY_COUNT, artist.playCount());
@@ -317,6 +334,7 @@ void LibraryTable::showByBestTracks(const Library& library)
 					item_track->setText(COLUMN_TITLE, QStringLiteral("[%1] %2")
 							.arg(album_title, track.titleWithTrackNumber()));
 				}
+				item_track->setToolTip(COLUMN_TITLE, track.fullInfo());
 				item_track->setText(COLUMN_YEAR, track.yearString());
 				item_track->setNumb(COLUMN_PLAY_COUNT, track.playCount());
 			}
@@ -388,6 +406,7 @@ void LibraryTable::showByGenres(const Library& library)
 				for (auto track : tracks) {
 					auto item_track = new LibraryTableItem(item_album);
 					item_track->setText(COLUMN_TITLE, track->titleWithTrackNumber());
+					item_track->setToolTip(COLUMN_TITLE, track->fullInfo());
 				}
 			}
 		}
@@ -436,6 +455,7 @@ void LibraryTable::showBySummary(const Library& library)
 		auto item_artist = new LibraryTableItem(item_top_artists);
 		item_artist->setText(COLUMN_TITLE, QStringLiteral("%1. %2")
 				.arg(++place, 2, 10, QChar('0')).arg(artist->title()));
+		item_artist->setToolTip(COLUMN_TITLE, artist->fullInfo());
 		item_artist->setText(COLUMN_YEAR, artist->yearString());
 		item_artist->setNumb(COLUMN_PLAY_COUNT, play_count);
 	}
@@ -452,6 +472,7 @@ void LibraryTable::showBySummary(const Library& library)
 		auto item_album = new LibraryTableItem(item_top_albums);
 		item_album->setText(COLUMN_TITLE, QStringLiteral("%1. [%2] %3")
 				.arg(++place, 2, 10, QChar('0')).arg(album->artist(), album->title()));
+		item_album->setToolTip(COLUMN_TITLE, album->fullInfo());
 		item_album->setText(COLUMN_YEAR, album->yearString());
 		item_album->setNumb(COLUMN_PLAY_COUNT, play_count);
 	}
@@ -473,6 +494,7 @@ void LibraryTable::showBySummary(const Library& library)
 			item_track->setText(COLUMN_TITLE, QStringLiteral("%1. [%2 - %3] %4")
 					.arg(++place, 2, 10, QChar('0')).arg(track->artist(), track->album(), track->title()));
 		}
+		item_track->setToolTip(COLUMN_TITLE, track->fullInfo());
 		item_track->setText(COLUMN_YEAR, track->yearString());
 		item_track->setNumb(COLUMN_PLAY_COUNT, play_count);
 	}
@@ -531,6 +553,7 @@ void LibraryTable::showByHistory(const std::vector<Library>& libraries)
 			auto item_artist = new LibraryTableItem(item_top_artists);
 			item_artist->setText(COLUMN_TITLE, QStringLiteral("%1. %2")
 					.arg(++place, 2, 10, QChar('0')).arg(artist->title()));
+			item_artist->setToolTip(COLUMN_TITLE, artist->fullInfo());
 			item_artist->setText(COLUMN_YEAR, artist->yearString());
 			item_artist->setNumb(COLUMN_PLAY_COUNT, play_count);
 		}
@@ -547,6 +570,7 @@ void LibraryTable::showByHistory(const std::vector<Library>& libraries)
 			auto item_album = new LibraryTableItem(item_top_albums);
 			item_album->setText(COLUMN_TITLE, QStringLiteral("%1. [%2] %3")
 					.arg(++place, 2, 10, QChar('0')).arg(album->artist(), album->title()));
+			item_album->setToolTip(COLUMN_TITLE, album->fullInfo());
 			item_album->setText(COLUMN_YEAR, album->yearString());
 			item_album->setNumb(COLUMN_PLAY_COUNT, play_count);
 		}
@@ -568,6 +592,7 @@ void LibraryTable::showByHistory(const std::vector<Library>& libraries)
 				item_track->setText(COLUMN_TITLE, QStringLiteral("%1. [%2 - %3] %4")
 						.arg(++place, 2, 10, QChar('0')).arg(track->artist(), track->album(), track->title()));
 			}
+			item_track->setToolTip(COLUMN_TITLE, track->fullInfo());
 			item_track->setText(COLUMN_YEAR, track->yearString());
 			item_track->setNumb(COLUMN_PLAY_COUNT, play_count);
 		}

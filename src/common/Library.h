@@ -43,16 +43,16 @@ public:
 	auto minYear() const
 	{
 		auto min_year = Global::undefined_year;
-		for (const auto& artist : _artists) {
-			min_year = Helper::checkMinYear(min_year, artist.second.minYear());
+		for (const auto& item : _artists) {
+			min_year = Helper::checkMinYear(min_year, item.second.minYear());
 		}
 		return min_year;
 	}
 	auto maxYear() const
 	{
 		auto max_year = Global::undefined_year;
-		for (const auto& artist : _artists) {
-			max_year = Helper::checkMaxYear(max_year, artist.second.maxYear());
+		for (const auto& item : _artists) {
+			max_year = Helper::checkMaxYear(max_year, item.second.maxYear());
 		}
 		return max_year;
 	}
@@ -62,18 +62,21 @@ public:
 	uint32_t playCount() const
 	{
 		uint32_t sum = 0;
-		for (const auto& artist : _artists) {
-			sum += artist.second.playCount();
-		}
+		for (const auto& item : _artists) { sum += item.second.playCount(); }
 		return sum;
 	}
 
 	uint64_t size() const
 	{
 		auto sum = uint64_t(0);
-		for (const auto& artist : _artists) {
-			sum += artist.second.size();
-		}
+		for (const auto& item : _artists) { sum += item.second.size(); }
+		return sum;
+	}
+
+	uint64_t time() const
+	{
+		auto sum = uint64_t(0);
+		for (const auto& item : _artists) { sum += item.second.time(); }
 		return sum;
 	}
 
@@ -83,14 +86,14 @@ public:
 	auto albumsCount() const
 	{
 		size_t sum = 0;
-		for (const auto& map_item : _artists) { sum += map_item.second.albumsCount(); }
+		for (const auto& item : _artists) { sum += item.second.albumsCount(); }
 		return sum;
 	}
 
 	auto tracksCount() const
 	{
 		size_t sum = 0;
-		for (const auto& map_item : _artists) { sum += map_item.second.tracksCount(); }
+		for (const auto& item : _artists) { sum += item.second.tracksCount(); }
 		return sum;
 	}
 
@@ -175,22 +178,36 @@ public:
 			for (const auto& [album_title, album] : artist) {
 				for (const auto& track : album) {
 					auto genre_title = track.genre();
-					auto& map_item = genres[genre_title];
-					map_item.first[track.artist()][track.album()].push_back(&track);
-					map_item.second++;
+					auto& item = genres[genre_title];
+					item.first[track.artist()][track.album()].push_back(&track);
+					item.second++;
 					if (genre_title.contains(QStringLiteral("Rock"))) {
-						auto& map_item_rock = genres[QStringLiteral("* Rock")];
-						map_item_rock.first[track.artist()][track.album()].push_back(&track);
-						map_item_rock.second++;
+						auto& item_rock = genres[QStringLiteral("* Rock")];
+						item_rock.first[track.artist()][track.album()].push_back(&track);
+						item_rock.second++;
 					} else if (genre_title.contains(QStringLiteral("Metal"))) {
-						auto& map_item_metal = genres[QStringLiteral("* Metal")];
-						map_item_metal.first[track.artist()][track.album()].push_back(&track);
-						map_item_metal.second++;
+						auto& item_metal = genres[QStringLiteral("* Metal")];
+						item_metal.first[track.artist()][track.album()].push_back(&track);
+						item_metal.second++;
 					}
 				}
 			}
 		}
 		return genres;
+	}
+
+	QString fullInfo() const
+	{
+		QString text;
+		text += QString("Файл: %1").arg(_title);
+		text += QString("\nГод: %1").arg(yearString());
+		text += QString("\nГрупп: %1").arg(artistsCount());
+		text += QString("\nАльбомов: %1").arg(albumsCount());
+		text += QString("\nТреков: %1").arg(tracksCount());
+		text += QString("\nПрослушиваний: %1").arg(playCount());
+		text += QString("\nДлина: %1").arg(Helper::timeString(time()));
+		text += QString("\nРазмер: %1").arg(Helper::sizeString(size()));
+		return text;
 	}
 
 private:
