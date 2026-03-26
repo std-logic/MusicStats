@@ -40,6 +40,9 @@ private:
 	QBarSet* getBarSet();
 	QBarCategoryAxis* getAxisX();
 	QValueAxis* getAxisY();
+	uint32_t calcStepY(uint32_t max_y);
+
+	void updateBars(uint32_t max_y, const QStringList& categories);
 
 	void showPlayCounts(const Library& library);
 	void showYears(const Library& library);

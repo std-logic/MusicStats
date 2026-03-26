@@ -6,7 +6,7 @@
 #include <QBarCategoryAxis>
 #include <QValueAxis>
 
-#include <map>
+#include <unordered_map>
 
 StatisticsChart::StatisticsChart(QWidget* parent)
 	: QChartView{parent}
@@ -119,11 +119,41 @@ QValueAxis* StatisticsChart::getAxisY()
 	return bar_axis_y_1;
 }
 
+uint32_t StatisticsChart::calcStepY(uint32_t max_y)
+{
+	return	(max_y > 60000)	? 20000 :	// 4+ steps
+			(max_y > 30000)	? 10000 :	// 4-7 steps
+			(max_y > 12000)	? 5000 :	// 3-7 steps
+			(max_y > 6000)	? 2000 :	// 4-7 steps
+			(max_y > 3000)	? 1000 :	// 4-7 steps
+			(max_y > 1200)	? 500 :		// 3-7 steps
+			(max_y > 600)	? 200 :		// 4-7 steps
+			(max_y > 300)	? 100 :		// 4-7 steps
+			(max_y > 120)	? 50 :		// 3-7 steps
+			(max_y > 60)	? 20 :		// 4-7 steps
+			(max_y > 30)	? 10 :		// 4-7 steps
+			(max_y > 12)	? 5 :		// 3-7 steps
+			(max_y > 5)		? 2 :		// 3-7 steps
+							  1;		// 1-6 steps
+}
+
+void StatisticsChart::updateBars(uint32_t max_y, const QStringList& categories)
+{
+	uint32_t step_y = calcStepY(max_y);
+
+	auto bar_axis_x = getAxisX();
+	bar_axis_x->setCategories(categories);
+
+	auto bar_axis_y = getAxisY();
+	bar_axis_y->setRange(0, ((max_y / step_y) + 1) * step_y);
+	bar_axis_y->setTickCount((max_y / step_y) + 2);
+}
+
 void StatisticsChart::showPlayCounts(const Library& library)
 {
 	chart()->setTitle(tr("Распределение по прослушиваниям"));
 
-	auto map_val_y = std::map<uint32_t, uint32_t>();
+	auto map_val_y = std::unordered_map<uint32_t, uint32_t>();
 	uint32_t min_x = 9999, max_x = 0;
 	for (const auto& [artist_title, artist] : library) {
 		for (const auto& [album_title, album] : artist) {
@@ -138,27 +168,22 @@ void StatisticsChart::showPlayCounts(const Library& library)
 	}
 
 	auto bar_set = getBarSet();
-	auto bar_axis_x = getAxisX();
-	auto bar_axis_y = getAxisY();
 	QStringList categories;
 	uint32_t max_y = 0;
 	for (uint32_t val_x = min_x; val_x <= max_x; ++val_x) {
 		uint32_t val_y = map_val_y[val_x];
+		if (max_y < val_y) { max_y = val_y; }
 		bar_set->append(val_y);
 		categories.append(QString("%1-%2").arg(val_x*10).arg(val_x*10+9));
-		if (max_y < val_y) { max_y = val_y; }
 	}
-	uint32_t step = (max_y > 3000) ? 1000 : 500;
-	bar_axis_x->setCategories(categories);
-	bar_axis_y->setRange(0, ((max_y / step) + 1) * step);
-	bar_axis_y->setTickCount((max_y / step) + 2);
+	updateBars(max_y, categories);
 }
 
 void StatisticsChart::showYears(const Library& library)
 {
 	chart()->setTitle(tr("Распределение по годам"));
 
-	auto map_val_y = std::map<uint32_t, uint32_t>();
+	auto map_val_y = std::unordered_map<uint32_t, uint32_t>();
 	uint32_t min_x = 9999, max_x = 0;
 	for (const auto& [artist_title, artist] : library) {
 		for (const auto& [album_title, album] : artist) {
@@ -177,22 +202,17 @@ void StatisticsChart::showYears(const Library& library)
 	}
 
 	auto bar_set = getBarSet();
-	auto bar_axis_x = getAxisX();
-	auto bar_axis_y = getAxisY();
 	QStringList categories;
 	uint32_t max_y = 0;
 	bar_set->append(map_val_y[Global::undefined_year]);
 	categories.append(tr("Неизвестные"));
 	for (uint32_t val_x = min_x; val_x <= max_x; ++val_x) {
 		uint32_t val_y = map_val_y[val_x];
+		if (max_y < val_y) { max_y = val_y; }
 		bar_set->append(val_y);
 		categories.append(QString("%1-%2").arg(val_x*10).arg(val_x*10+9));
-		if (max_y < val_y) { max_y = val_y; }
 	}
-	uint32_t step = 1000;
-	bar_axis_x->setCategories(categories);
-	bar_axis_y->setRange(0, ((max_y / step) + 1) * step);
-	bar_axis_y->setTickCount((max_y / step) + 2);
+	updateBars(max_y, categories);
 }
 
 void StatisticsChart::showHistoryPlayCounts(const std::vector<Library>& libraries)
@@ -200,23 +220,15 @@ void StatisticsChart::showHistoryPlayCounts(const std::vector<Library>& librarie
 	chart()->setTitle(tr("Прирост прослушиваний"));
 
 	auto bar_set = getBarSet();
-	auto bar_axis_x = getAxisX();
-	auto bar_axis_y = getAxisY();
 	QStringList categories;
 	uint32_t max_y = 0;
-
 	for (unsigned int i = 1; i < libraries.size(); ++i) {
-		const auto& library = libraries[i];
-		categories.append(library.titleOnlyDate());
-		uint32_t val_y = library.playCount();
-		bar_set->append(val_y);
+		uint32_t val_y = libraries[i].playCount();
 		if (max_y < val_y) { max_y = val_y; }
+		bar_set->append(val_y);
+		categories.append(libraries[i].titleOnlyDate());
 	}
-
-	uint32_t step = (max_y > 30000) ? 10000 : (max_y > 15000) ? 5000 : (max_y > 8000) ? 2000 : 1000;
-	bar_axis_x->setCategories(categories);
-	bar_axis_y->setRange(0, ((max_y / step) + 1) * step);
-	bar_axis_y->setTickCount((max_y / step) + 2);
+	updateBars(max_y, categories);
 }
 
 void StatisticsChart::showHistoryArtists(const std::vector<Library>& libraries)
@@ -224,24 +236,15 @@ void StatisticsChart::showHistoryArtists(const std::vector<Library>& libraries)
 	chart()->setTitle(tr("Прирост групп"));
 
 	auto bar_set = getBarSet();
-	auto bar_axis_x = getAxisX();
-	auto bar_axis_y = getAxisY();
 	QStringList categories;
 	uint32_t max_y = 0;
-
 	for (unsigned int i = 1; i < libraries.size(); ++i) {
-		const auto& prev_library = libraries[i-1];
-		const auto& library = libraries[i];
-		categories.append(library.titleOnlyDate());
-		uint32_t val_y = library.artistsCount() - prev_library.artistsCount();
-		bar_set->append(val_y);
+		uint32_t val_y = libraries[i].artistsCount() - libraries[i-1].artistsCount();
 		if (max_y < val_y) { max_y = val_y; }
+		bar_set->append(val_y);
+		categories.append(libraries[i].titleOnlyDate());
 	}
-
-	uint32_t step = (max_y > 10) ? 5 : (max_y > 5) ? 2 : 1;
-	bar_axis_x->setCategories(categories);
-	bar_axis_y->setRange(0, ((max_y / step) + 1) * step);
-	bar_axis_y->setTickCount((max_y / step) + 2);
+	updateBars(max_y, categories);
 }
 
 void StatisticsChart::showHistoryAlbums(const std::vector<Library>& libraries)
@@ -249,24 +252,15 @@ void StatisticsChart::showHistoryAlbums(const std::vector<Library>& libraries)
 	chart()->setTitle(tr("Прирост альбомов"));
 
 	auto bar_set = getBarSet();
-	auto bar_axis_x = getAxisX();
-	auto bar_axis_y = getAxisY();
 	QStringList categories;
 	uint32_t max_y = 0;
-
 	for (unsigned int i = 1; i < libraries.size(); ++i) {
-		const auto& prev_library = libraries[i-1];
-		const auto& library = libraries[i];
-		categories.append(library.titleOnlyDate());
-		uint32_t val_y = library.albumsCount() - prev_library.albumsCount();
-		bar_set->append(val_y);
+		uint32_t val_y = libraries[i].albumsCount() - libraries[i-1].albumsCount();
 		if (max_y < val_y) { max_y = val_y; }
+		bar_set->append(val_y);
+		categories.append(libraries[i].titleOnlyDate());
 	}
-
-	uint32_t step = (max_y > 30) ? 10 : (max_y > 10) ? 5 : (max_y > 5) ? 2 : 1;
-	bar_axis_x->setCategories(categories);
-	bar_axis_y->setRange(0, ((max_y / step) + 1) * step);
-	bar_axis_y->setTickCount((max_y / step) + 2);
+	updateBars(max_y, categories);
 }
 
 void StatisticsChart::showHistoryTracks(const std::vector<Library>& libraries)
@@ -274,23 +268,13 @@ void StatisticsChart::showHistoryTracks(const std::vector<Library>& libraries)
 	chart()->setTitle(tr("Прирост треков"));
 
 	auto bar_set = getBarSet();
-	auto bar_axis_x = getAxisX();
-	auto bar_axis_y = getAxisY();
 	QStringList categories;
 	uint32_t max_y = 0;
-
 	for (unsigned int i = 1; i < libraries.size(); ++i) {
-		const auto& prev_library = libraries[i-1];
-		const auto& library = libraries[i];
-		categories.append(library.titleOnlyDate());
-		uint32_t val_y = library.tracksCount() - prev_library.tracksCount();
-		bar_set->append(val_y);
+		uint32_t val_y = libraries[i].tracksCount() - libraries[i-1].tracksCount();
 		if (max_y < val_y) { max_y = val_y; }
+		bar_set->append(val_y);
+		categories.append(libraries[i].titleOnlyDate());
 	}
-
-	uint32_t step = (max_y > 300) ? 100 : (max_y > 100) ? 50 : (max_y > 60) ? 20 :
-					(max_y > 30) ? 10 : (max_y > 10) ? 5 : (max_y > 5) ? 2 : 1;
-	bar_axis_x->setCategories(categories);
-	bar_axis_y->setRange(0, ((max_y / step) + 1) * step);
-	bar_axis_y->setTickCount((max_y / step) + 2);
+	updateBars(max_y, categories);
 }
