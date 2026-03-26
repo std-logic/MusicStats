@@ -24,4 +24,7 @@ private:
 	QString createLibraryTitleFromFileName(const QString& file_name);
 	QString createLibraryTitleFromFileNames(const QString& file_name_1, const QString& file_name_2);
 	Library createLibraryFromTracks(const QString& title, const std::list<Track>& tracks);
+
+private:
+	std::unordered_map<QString, std::list<Track>> _tracks_cache;
 };

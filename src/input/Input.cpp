@@ -53,7 +53,13 @@ void Input::readFiles(const QStringList& file_names)
 
 std::list<Track> Input::readTracks(const QString& file_name)
 {
-	return XmlParser::readFile(file_name);
+	if (!_tracks_cache.contains(file_name)) {
+		if (_tracks_cache.size() >= 20) {
+			_tracks_cache.erase(_tracks_cache.begin()); // on cache overflow we remove some random old data
+		}
+		_tracks_cache[file_name] = XmlParser::readFile(file_name);
+	}
+	return _tracks_cache[file_name];
 }
 
 std::list<Track> Input::calcTracksDiff(std::list<Track> tracks_1, std::list<Track> tracks_2)
