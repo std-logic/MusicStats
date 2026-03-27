@@ -7,6 +7,8 @@
 #include <QStatusBar>
 #include <QFileDialog>
 #include <QVBoxLayout>
+#include <QDir>
+#include <QFileInfo>
 
 MainWindow::MainWindow(QWidget* parent)
 	: QMainWindow{parent}
@@ -19,7 +21,8 @@ MainWindow::MainWindow(QWidget* parent)
 	initCentralWidgets();
 
 	clearLibraryTitle();
-	updateMenuBar(SHOW_LIBRARY);
+	updateMenuView(SHOW_LIBRARY);
+	updateMenuFile();
 }
 
 MainWindow::~MainWindow()
@@ -29,7 +32,7 @@ MainWindow::~MainWindow()
 void MainWindow::showLibrary(const Library& library)
 {
 	_libraries.reset();
-	updateMenuBar(SHOW_LIBRARY);
+	updateMenuView(SHOW_LIBRARY);
 	_library = library;
 	_library_table->showLibrary(library);
 	_statistics_chart->showStatistics(library);
@@ -40,7 +43,7 @@ void MainWindow::showLibrary(const Library& library)
 void MainWindow::showLibraries(const std::vector<Library>& libraries)
 {
 	_library.reset();
-	updateMenuBar(SHOW_LIBRARIES);
+	updateMenuView(SHOW_LIBRARIES);
 	_libraries = libraries;
 	_library_table->showLibraries(libraries);
 	_statistics_chart->showStatistics(libraries);
@@ -69,6 +72,24 @@ void MainWindow::initMenuBar()
 					this,
 					&MainWindow::openFile);
 
+		// Файл -> Следующий
+		_menu_file_action_next = menu_file->addAction(
+					QIcon::fromTheme(QIcon::ThemeIcon::GoNext),
+					tr("Следующий"),
+					QKeySequence(Qt::CTRL | Qt::Key_X),
+					this,
+					&MainWindow::openNextFile);
+
+		// Файл -> Предыдущий
+		_menu_file_action_prev = menu_file->addAction(
+					QIcon::fromTheme(QIcon::ThemeIcon::GoPrevious),
+					tr("Предыдущий"),
+					QKeySequence(Qt::CTRL | Qt::Key_Z),
+					this,
+					&MainWindow::openPrevFile);
+
+		menu_file->addSeparator();
+
 		// Файл -> Очистить
 		menu_file->addAction(
 					QIcon::fromTheme(QIcon::ThemeIcon::ViewRefresh),
@@ -93,7 +114,7 @@ void MainWindow::initMenuBar()
 					&MainWindow::viewByArtists);
 		action_view_by_artists->setCheckable(true);
 		action_view_by_artists->setActionGroup(group_view_by);
-		_menu_actions[SHOW_LIBRARY].push_back(action_view_by_artists);
+		_menu_view_actions[SHOW_LIBRARY].push_back(action_view_by_artists);
 		_default_menu_view_by[SHOW_LIBRARY] = action_view_by_artists;
 
 		// Вид -> По альбомам
@@ -104,7 +125,7 @@ void MainWindow::initMenuBar()
 					&MainWindow::viewByAlbums);
 		action_view_by_albums->setCheckable(true);
 		action_view_by_albums->setActionGroup(group_view_by);
-		_menu_actions[SHOW_LIBRARY].push_back(action_view_by_albums);
+		_menu_view_actions[SHOW_LIBRARY].push_back(action_view_by_albums);
 
 		// Вид -> По трекам
 		auto action_view_by_tracks = menu_view->addAction(
@@ -114,7 +135,7 @@ void MainWindow::initMenuBar()
 					&MainWindow::viewByTracks);
 		action_view_by_tracks->setCheckable(true);
 		action_view_by_tracks->setActionGroup(group_view_by);
-		_menu_actions[SHOW_LIBRARY].push_back(action_view_by_tracks);
+		_menu_view_actions[SHOW_LIBRARY].push_back(action_view_by_tracks);
 
 		// Вид -> По лучшим трекам
 		auto action_view_by_best_tracks = menu_view->addAction(
@@ -124,7 +145,7 @@ void MainWindow::initMenuBar()
 					&MainWindow::viewByBestTracks);
 		action_view_by_best_tracks->setCheckable(true);
 		action_view_by_best_tracks->setActionGroup(group_view_by);
-		_menu_actions[SHOW_LIBRARY].push_back(action_view_by_best_tracks);
+		_menu_view_actions[SHOW_LIBRARY].push_back(action_view_by_best_tracks);
 
 		// Вид -> По жанрам
 		auto action_view_by_genres = menu_view->addAction(
@@ -134,7 +155,7 @@ void MainWindow::initMenuBar()
 					&MainWindow::viewByGenres);
 		action_view_by_genres->setCheckable(true);
 		action_view_by_genres->setActionGroup(group_view_by);
-		_menu_actions[SHOW_LIBRARY].push_back(action_view_by_genres);
+		_menu_view_actions[SHOW_LIBRARY].push_back(action_view_by_genres);
 
 		// Вид -> Сводка
 		auto action_view_by_summary = menu_view->addAction(
@@ -144,7 +165,7 @@ void MainWindow::initMenuBar()
 					&MainWindow::viewBySummary);
 		action_view_by_summary->setCheckable(true);
 		action_view_by_summary->setActionGroup(group_view_by);
-		_menu_actions[SHOW_LIBRARY].push_back(action_view_by_summary);
+		_menu_view_actions[SHOW_LIBRARY].push_back(action_view_by_summary);
 
 		// Вид -> История
 		auto action_view_by_history = menu_view->addAction(
@@ -154,7 +175,7 @@ void MainWindow::initMenuBar()
 					&MainWindow::viewByHistory);
 		action_view_by_history->setCheckable(true);
 		action_view_by_history->setActionGroup(group_view_by);
-		_menu_actions[SHOW_LIBRARIES].push_back(action_view_by_history);
+		_menu_view_actions[SHOW_LIBRARIES].push_back(action_view_by_history);
 		_default_menu_view_by[SHOW_LIBRARIES] = action_view_by_history;
 
 		menu_view->addSeparator();
@@ -181,7 +202,7 @@ void MainWindow::initMenuBar()
 					&MainWindow::statisticsChartPlayCounts);
 		action_statistics_chart_play_counts->setCheckable(true);
 		action_statistics_chart_play_counts->setActionGroup(group_statistics_chart);
-		_menu_actions[SHOW_LIBRARY].push_back(action_statistics_chart_play_counts);
+		_menu_view_actions[SHOW_LIBRARY].push_back(action_statistics_chart_play_counts);
 
 		// Вид -> По годам
 		auto action_statistics_chart_years = menu_view->addAction(
@@ -191,7 +212,7 @@ void MainWindow::initMenuBar()
 					&MainWindow::statisticsChartYears);
 		action_statistics_chart_years->setCheckable(true);
 		action_statistics_chart_years->setActionGroup(group_statistics_chart);
-		_menu_actions[SHOW_LIBRARY].push_back(action_statistics_chart_years);
+		_menu_view_actions[SHOW_LIBRARY].push_back(action_statistics_chart_years);
 
 		// Вид -> Прирост прослушиваний
 		auto action_statistics_chart_history_play_counts = menu_view->addAction(
@@ -201,7 +222,7 @@ void MainWindow::initMenuBar()
 					&MainWindow::statisticsChartHistoryPlayCounts);
 		action_statistics_chart_history_play_counts->setCheckable(true);
 		action_statistics_chart_history_play_counts->setActionGroup(group_statistics_chart);
-		_menu_actions[SHOW_LIBRARIES].push_back(action_statistics_chart_history_play_counts);
+		_menu_view_actions[SHOW_LIBRARIES].push_back(action_statistics_chart_history_play_counts);
 
 		// Вид -> Прирост групп
 		auto action_statistics_chart_history_artists = menu_view->addAction(
@@ -211,7 +232,7 @@ void MainWindow::initMenuBar()
 					&MainWindow::statisticsChartHistoryArtists);
 		action_statistics_chart_history_artists->setCheckable(true);
 		action_statistics_chart_history_artists->setActionGroup(group_statistics_chart);
-		_menu_actions[SHOW_LIBRARIES].push_back(action_statistics_chart_history_artists);
+		_menu_view_actions[SHOW_LIBRARIES].push_back(action_statistics_chart_history_artists);
 
 		// Вид -> Прирост альбомов
 		auto action_statistics_chart_history_albums = menu_view->addAction(
@@ -221,7 +242,7 @@ void MainWindow::initMenuBar()
 					&MainWindow::statisticsChartHistoryAlbums);
 		action_statistics_chart_history_albums->setCheckable(true);
 		action_statistics_chart_history_albums->setActionGroup(group_statistics_chart);
-		_menu_actions[SHOW_LIBRARIES].push_back(action_statistics_chart_history_albums);
+		_menu_view_actions[SHOW_LIBRARIES].push_back(action_statistics_chart_history_albums);
 
 		// Вид -> Прирост треков
 		auto action_statistics_chart_history_tracks = menu_view->addAction(
@@ -231,7 +252,7 @@ void MainWindow::initMenuBar()
 					&MainWindow::statisticsChartHistoryTracks);
 		action_statistics_chart_history_tracks->setCheckable(true);
 		action_statistics_chart_history_tracks->setActionGroup(group_statistics_chart);
-		_menu_actions[SHOW_LIBRARIES].push_back(action_statistics_chart_history_tracks);
+		_menu_view_actions[SHOW_LIBRARIES].push_back(action_statistics_chart_history_tracks);
 	}
 }
 
@@ -292,22 +313,80 @@ void MainWindow::showReadingFinish()
 							 .arg(_read_files_timer.elapsed()), 10000);
 }
 
-void MainWindow::updateMenuBar(ShowModes show_mode)
+void MainWindow::updateMenuView(ShowModes show_mode)
 {
 	if (_show_mode == show_mode) {
 		return;
 	}
 	_show_mode = show_mode;
 
-	for (auto action : _menu_actions[SHOW_LIBRARY]) {
+	for (auto action : _menu_view_actions[SHOW_LIBRARY]) {
 		action->setEnabled(show_mode == SHOW_LIBRARY);
 	}
-	for (auto action : _menu_actions[SHOW_LIBRARIES]) {
+	for (auto action : _menu_view_actions[SHOW_LIBRARIES]) {
 		action->setEnabled(show_mode == SHOW_LIBRARIES);
 	}
 
 	_default_menu_view_by[show_mode]->trigger();
 	_default_menu_statistics_chart[show_mode]->trigger();
+}
+
+void MainWindow::updateMenuFile(const QStringList& file_names)
+{
+	if (file_names.size() != 1) {
+		_menu_file_path.clear();
+		_menu_file_entry_list.clear();
+		_menu_file_curr_pos = -1;
+		updateMenuFileNext(false);
+		updateMenuFilePrev(false);
+	} else {
+		// split full name at file name and path
+		QFileInfo file_info(file_names[0]);
+		auto file_path = file_info.absolutePath();
+		auto file_name = file_info.fileName();
+
+		// find all *.xml files in current directory (but only when directory changed)
+		if (_menu_file_path != file_path) {
+			_menu_file_path = file_path;
+			QDir dir(file_path);
+			auto filter = QStringList() << QStringLiteral("*.xml");
+			_menu_file_entry_list = dir.entryList(filter, QDir::Files, QDir::Name);
+		}
+
+		// find next and previous files according to the current file
+		_menu_file_curr_pos = _menu_file_entry_list.indexOf(file_name);
+		if (_menu_file_curr_pos != -1) {
+			if (_menu_file_curr_pos < (_menu_file_entry_list.size() - 1)) {
+				auto next_file_name = _menu_file_entry_list[_menu_file_curr_pos + 1];
+				next_file_name.remove(QStringLiteral("winamp_")).remove(QStringLiteral(".xml"));
+				updateMenuFileNext(true, QStringLiteral(" → ") + next_file_name);
+			} else {
+				updateMenuFileNext(false);
+			}
+			if (_menu_file_curr_pos > 0) {
+				auto prev_file_name = _menu_file_entry_list[_menu_file_curr_pos - 1];
+				prev_file_name.remove(QStringLiteral("winamp_")).remove(QStringLiteral(".xml"));
+				updateMenuFilePrev(true, QStringLiteral(" → ") + prev_file_name);
+			} else {
+				updateMenuFilePrev(false);
+			}
+		} else {
+			updateMenuFileNext(false);
+			updateMenuFilePrev(false);
+		}
+	}
+}
+
+void MainWindow::updateMenuFileNext(bool enabled, const QString& suffix)
+{
+	_menu_file_action_next->setText(tr("Следующий") + suffix);
+	_menu_file_action_next->setEnabled(enabled);
+}
+
+void MainWindow::updateMenuFilePrev(bool enabled, const QString& suffix)
+{
+	_menu_file_action_prev->setText(tr("Предыдущий") + suffix);
+	_menu_file_action_prev->setEnabled(enabled);
 }
 
 void MainWindow::openFile()
@@ -316,13 +395,38 @@ void MainWindow::openFile()
 				this,
 				tr("Выберите один или несколько файлов для анализа"),
 				QString(),
-				QString("XML files (*.xml)"));
+				QStringLiteral("XML files (*.xml)"));
 
 	if (file_names.isEmpty()) {
 		return;
 	}
 
 	file_names.sort();
+	updateMenuFile(file_names);
+	showReadingStart();
+	emit readFiles(file_names);
+}
+
+void MainWindow::openNextFile()
+{
+	if ((_menu_file_curr_pos < 0) || (_menu_file_curr_pos >= (_menu_file_entry_list.size() - 1))) {
+		return;
+	}
+	auto file_name = _menu_file_path + "/" + _menu_file_entry_list[_menu_file_curr_pos + 1];
+	auto file_names = QStringList() << file_name;
+	updateMenuFile(file_names);
+	showReadingStart();
+	emit readFiles(file_names);
+}
+
+void MainWindow::openPrevFile()
+{
+	if ((_menu_file_curr_pos < 1) || (_menu_file_curr_pos >= _menu_file_entry_list.size())) {
+		return;
+	}
+	auto file_name = _menu_file_path + "/" + _menu_file_entry_list[_menu_file_curr_pos - 1];
+	auto file_names = QStringList() << file_name;
+	updateMenuFile(file_names);
 	showReadingStart();
 	emit readFiles(file_names);
 }
@@ -334,7 +438,8 @@ void MainWindow::clearAll()
 	_statistics_chart->clearStatistics();
 	_library.reset();
 	_libraries.reset();
-	updateMenuBar(SHOW_LIBRARY);
+	updateMenuView(SHOW_LIBRARY);
+	updateMenuFile();
 }
 
 void MainWindow::viewByArtists(bool /*checked*/)

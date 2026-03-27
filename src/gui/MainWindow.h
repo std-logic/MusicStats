@@ -44,10 +44,15 @@ private:
 	void showReadingStart();
 	void showReadingFinish();
 
-	void updateMenuBar(ShowModes show_mode);
+	void updateMenuView(ShowModes show_mode);
+	void updateMenuFile(const QStringList& file_names = QStringList());
+	void updateMenuFileNext(bool enabled, const QString& suffix = QString());
+	void updateMenuFilePrev(bool enabled, const QString& suffix = QString());
 
 private slots:
 	void openFile();
+	void openNextFile();
+	void openPrevFile();
 	void clearAll();
 
 	void viewByArtists(bool checked);
@@ -73,8 +78,14 @@ private:
 	std::optional<Library> _library;
 	std::optional<std::vector<Library>> _libraries;
 
+	QAction* _menu_file_action_next = nullptr;
+	QAction* _menu_file_action_prev = nullptr;
+	QString _menu_file_path;
+	QStringList _menu_file_entry_list;
+	qsizetype _menu_file_curr_pos = -1;
+
 	ShowModes _show_mode = NUM_OF_SHOW_MODES;
-	std::vector<QAction*> _menu_actions[NUM_OF_SHOW_MODES];
+	std::vector<QAction*> _menu_view_actions[NUM_OF_SHOW_MODES];
 	QAction* _default_menu_view_by[NUM_OF_SHOW_MODES];
 	QAction* _default_menu_statistics_chart[NUM_OF_SHOW_MODES];
 
